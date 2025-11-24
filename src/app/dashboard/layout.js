@@ -15,7 +15,8 @@ import {
   AlertTriangle,
   Search,
   Bell,
-  Shield
+  Shield,
+  Info
 } from 'lucide-react'
 import { useAuth } from '../../utils/authContext'
 
@@ -154,6 +155,15 @@ export default function DashboardLayout({ children }) {
             )}
             
             <div className="border-t border-slate-200 pt-6 mt-6">
+              <Link href="/dashboard/about" className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 mb-6 ${
+                pathname === '/dashboard/about' 
+                  ? 'text-white bg-indigo-600 shadow-md' 
+                  : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'
+              }`}>
+                <Info className="w-5 h-5" />
+                <span className="font-medium">เกี่ยวกับเรา</span>
+              </Link>
+              
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">ตั้งค่า</h3>
               
               <button 

@@ -130,12 +130,9 @@ export default function UserDashboardPage() {
                 คุณมีเรื่องแจ้ง <span className="font-semibold text-indigo-600">{stats.total} เรื่อง</span> ทั้งหมด
               </p>
             </div>
-            <div className="flex items-center bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 shadow-sm border border-indigo-100">
-              <div className="text-right">
-                <div className="text-sm font-medium text-indigo-600 mb-1">วันที่</div>
-                <div className="text-xl font-bold text-indigo-800">{formatDate(new Date())}</div>
-                <div className="text-xs text-indigo-500 mt-1">ระบบแจ้งปัญหา ND</div>
-              </div>
+            <div className="text-right bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+              <div className="text-sm font-medium text-slate-600">วันที่</div>
+              <div className="text-lg font-bold text-slate-800">{formatDate(new Date())}</div>
             </div>
           </div>
         </div>
@@ -207,31 +204,19 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Link href="/dashboard/create" className="group bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Plus className="w-8 h-8 text-white" />
+        {/* Quick Action */}
+        <div className="mb-8 max-w-4xl mx-auto">
+          <Link href="/dashboard/create" className="group bg-white border border-gray-200 rounded-xl p-12 shadow-sm hover:shadow-lg transition-all duration-300 block">
+            <div className="flex items-center justify-center space-x-6">
+              <div className="w-20 h-20 bg-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Plus className="w-10 h-10 text-white" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">แจ้งปัญหาใหม่</h3>
-                <p className="text-gray-600">แจ้งปัญหาหรือข้อร้องเรียนใหม่</p>
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">แจ้งปัญหาใหม่</h3>
+                <p className="text-gray-600 text-lg">แจ้งปัญหาหรือข้อร้องเรียนใหม่ในหมู่บ้าน/คอนโด</p>
               </div>
             </div>
           </Link>
-
-          <div className="group bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">สถิติของฉัน</h3>
-                <p className="text-gray-600">ดูสถิติการแจ้งปัญหาของคุณ</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* My Reports */}

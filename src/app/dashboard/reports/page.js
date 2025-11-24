@@ -26,8 +26,7 @@ const statusOptions = [
   { value: '', label: 'ทุกสถานะ' },
   { value: 'รอรับเรื่อง', label: 'รอรับเรื่อง' },
   { value: 'กำลังดำเนินการ', label: 'กำลังดำเนินการ' },
-  { value: 'แก้ไขเสร็จ', label: 'แก้ไขเสร็จ' },
-  { value: 'รอตรวจสอบ', label: 'รอตรวจสอบ' }
+  { value: 'แก้ไขเสร็จ', label: 'แก้ไขเสร็จ' }
 ]
 
 const priorityOptions = [

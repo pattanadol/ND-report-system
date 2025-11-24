@@ -1,7 +1,34 @@
 'use client'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Mail, Phone, MapPin, Award, Calendar, Target } from 'lucide-react'
+import { useAuth } from '../../../utils/authContext'
 
 export default function AboutPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  // ตรวจสอบการ login
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
+
+  // แสดง loading ขณะตรวจสอบ authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">กำลังโหลด...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ถ้ายังไม่ได้ login
+  if (!user) return null
   const teamMembers = [
     {
       id: 1,

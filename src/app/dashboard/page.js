@@ -164,42 +164,30 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <Link href="/dashboard/create" className="group bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-lg hover:border-indigo-300 transition-all duration-200">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Plus className="w-8 h-8 text-white" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 max-w-6xl mx-auto">
+          <Link href="/dashboard/create" className="group bg-white border border-gray-200 rounded-xl p-12 shadow-sm hover:shadow-lg hover:border-indigo-300 transition-all duration-200">
+            <div className="flex items-center space-x-6">
+              <div className="w-20 h-20 bg-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Plus className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">แจ้งปัญหาใหม่</h3>
-                <p className="text-gray-600">แจ้งปัญหาในหมู่บ้านหรือคอนโด</p>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">แจ้งปัญหาใหม่</h3>
+                <p className="text-gray-600 text-lg">แจ้งปัญหาในหมู่บ้านหรือคอนโด</p>
               </div>
             </div>
           </Link>
 
-          <Link href="/dashboard/reports" className="group bg-white border border-slate-200 rounded-xl p-8 shadow-sm hover:shadow-lg hover:border-emerald-300 transition-all duration-200">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <FileText className="w-8 h-8 text-white" />
+          <Link href="/dashboard/reports" className="group bg-white border border-slate-200 rounded-xl p-12 shadow-sm hover:shadow-lg hover:border-emerald-300 transition-all duration-200">
+            <div className="flex items-center space-x-6">
+              <div className="w-20 h-20 bg-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FileText className="w-10 h-10 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-slate-800 mb-1">จัดการเรื่องแจ้ง</h3>
-                <p className="text-slate-600">ดูและจัดการเรื่องแจ้งทั้งหมด (Admin)</p>
+                <h3 className="text-2xl font-bold text-slate-800 mb-2">จัดการเรื่องแจ้ง</h3>
+                <p className="text-slate-600 text-lg">ดูและจัดการเรื่องแจ้งทั้งหมด (Admin)</p>
               </div>
             </div>
           </Link>
-
-          <div className="group bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-purple-600 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">สถิติและรายงาน</h3>
-                <p className="text-gray-600">วิเคราะห์ข้อมูลการทำงาน</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Recent Reports */}
