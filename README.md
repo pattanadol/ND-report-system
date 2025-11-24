@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ND Report System
 
-## Getting Started
+ระบบแจ้งเรื่องออนไลน์ที่ทันสมัยและใช้งานง่าย
 
-First, run the development server:
+## การติดตั้ง
 
 ```bash
+# ติดตั้ง dependencies
+npm install
+
+# รันเซิร์ฟเวอร์พัฒนา
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# สร้างสำหรับ production
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## โครงสร้างโปรเจค
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```
+src/
+├── app/
+│   ├── dashboard/     # หน้า Dashboard และ layout
+│   ├── login/         # หน้า Login  
+│   ├── register/      # หน้า Register
+│   ├── globals.css    # CSS หลัก
+│   ├── layout.js      # Layout หลัก
+│   └── page.js        # หน้าแรก
+├── components/        # Components ที่ใช้ร่วมกัน
+└── utils/            # Functions ที่ใช้ร่วมกัน
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## เทคโนโลยี
 
-## Learn More
+- **Next.js 14** - React Framework
+- **Tailwind CSS** - สำหรับ styling
+- **Lucide React** - ไอคอน
 
-To learn more about Next.js, take a look at the following resources:
+## URL
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- หน้าแรก: `http://localhost:3001`
+- Login: `http://localhost:3001/login`  
+- Register: `http://localhost:3001/register`
+- Dashboard: `http://localhost:3001/dashboard`
