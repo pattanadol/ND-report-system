@@ -41,29 +41,28 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center p-4">
       <div className="max-w-lg w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <User className="w-8 h-8 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <User className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
             เข้าสู่ระบบ
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm sm:text-base">
             กรอกข้อมูลเพื่อเข้าใช้งาน
           </p>
         </div>
 
-
         {/* Login Form */}
-        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-lg">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 shadow-lg">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 flex items-start">
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-red-700 font-medium">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-800 mb-2">

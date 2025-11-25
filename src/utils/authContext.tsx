@@ -19,6 +19,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChange((userProfile: UserProfile | null) => {
       if (userProfile) {
+        console.log('🔐 Auth: User profile received:', {
+          uid: userProfile.uid,
+          email: userProfile.email,
+          name: userProfile.name,
+          isAdmin: userProfile.isAdmin
+        })
+        
         // แปลง UserProfile เป็น User format เดิม
         const userData: User = {
           id: parseInt(userProfile.uid.slice(-6)), // ใช้ 6 ตัวท้ายของ uid เป็น id
@@ -26,8 +33,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           name: userProfile.name,
           role: userProfile.isAdmin ? 'admin' : 'user'
         }
+        
+        console.log('👤 Auth: User data set:', userData)
         setUser(userData)
       } else {
+        console.log('🚪 Auth: User logged out')
         setUser(null)
       }
       setLoading(false)

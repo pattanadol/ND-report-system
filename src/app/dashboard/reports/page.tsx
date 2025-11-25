@@ -110,9 +110,14 @@ export default function ReportsPage() {
   })
 
   const handleStatusChange = async (reportId: string, newStatus: ReportStatus) => {
+    console.log('🔄 Reports Page: Status change requested:', { reportId, newStatus })
+    console.log('👤 Current user:', { user, isAdmin })
+    
     try {
       await updateReportStatus(reportId, newStatus)
       setShowActionMenu(null)
+      
+      console.log('✅ Reports Page: Status updated successfully')
       
       // แสดง toast notification (สั้นๆ แทน alert)
       const successMessages = {
@@ -126,8 +131,8 @@ export default function ReportsPage() {
       }, 300) // รอให้ UI อัปเดตก่อน
       
     } catch (error) {
-      console.error('Error updating status:', error)
-      alert('❌ เกิดข้อผิดพลาดในการอัปเดตสถานะ กรุณาลองใหม่')
+      console.error('❌ Reports Page: Error updating status:', error)
+      alert(`❌ เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${error instanceof Error ? error.message : 'ข้อผิดพลาดไม่ทราบสาเหตุ'}`)
     }
   }
 
@@ -155,6 +160,21 @@ export default function ReportsPage() {
     }
   }
 
+  const getStatusBadgeColor = (status: ReportStatus) => {
+    switch (status) {
+      case 'รอรับเรื่อง':
+        return 'bg-yellow-50 text-yellow-700 border-yellow-200'
+      case 'กำลังดำเนินการ':
+        return 'bg-blue-50 text-blue-700 border-blue-200'
+      case 'แก้ไขเสร็จ':
+        return 'bg-green-50 text-green-700 border-green-200'
+      case 'รอตรวจสอบ':
+        return 'bg-purple-50 text-purple-700 border-purple-200'
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200'
+    }
+  }
+
   const getStatusIcon = (status: ReportStatus) => {
     switch (status) {
       case 'รอรับเรื่อง':
@@ -171,28 +191,28 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header - Mobile optimized */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-4 sm:space-y-0">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">เรื่องแจ้งทั้งหมด</h1>
-              <p className="text-gray-600 text-lg">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">เรื่องแจ้งทั้งหมด</h1>
+              <p className="text-gray-600 text-sm sm:text-lg">
                 จัดการและติดตามเรื่องแจ้งของคุณ ({filteredReports.length} รายการ)
               </p>
             </div>
             <Link
               href="/dashboard/create"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 w-full sm:w-auto"
             >
-              <Plus className="w-5 h-5" />
-              <span>สร้างรายงานใหม่</span>
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="text-sm sm:text-base">สร้างรายงานใหม่</span>
             </Link>
           </div>
         </div>
 
-        {/* Search and Filters */}
+        {/* Search and Filters - Mobile optimized */}}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             {/* Search */}
@@ -259,57 +279,61 @@ export default function ReportsPage() {
           {filteredReports.length > 0 ? (
             <div className="divide-y divide-gray-100">
               {filteredReports.map((report) => (
-                <div key={report.id} className="p-6 hover:bg-gray-50/50 transition-colors duration-200">
-                  <div className="flex justify-between items-start">
+                <div key={report.id} className="p-4 sm:p-6 hover:bg-gray-50/50 transition-colors duration-200">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0">
                     <div className="flex-1">
-                      <div className="flex items-start space-x-4">
+                      <div className="flex items-start space-x-3 sm:space-x-4">
                         <div className="flex-shrink-0 mt-1">
-                          {getStatusIcon(report.status)}
+                          <div className={`p-2 rounded-full ${getStatusColor(report.status)}`}>
+                            {getStatusIcon(report.status)}
+                          </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <Link href={`/dashboard/reports/${report.id}`}>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2 hover:text-indigo-600 cursor-pointer transition-colors">
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 hover:text-indigo-600 cursor-pointer transition-colors line-clamp-2">
                               {report.title}
                             </h3>
                           </Link>
-                          <p className="text-gray-600 mb-4 line-clamp-2">
-                            {truncateText(report.description, 150)}
+                          <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base line-clamp-2 sm:line-clamp-3">
+                            {truncateText(report.description, 120)}
                           </p>
                           
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
+                          {/* Mobile-optimized info grid */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
                             <div className="flex items-center space-x-1">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                              <span>หมวดหมู่: {report.category}</span>
+                              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                              <span className="truncate">หมวดหมู่: {report.category}</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <AlertTriangle className="w-4 h-4" />
-                              <span>ระดับ: {report.priority}</span>
+                              <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                              <span className="truncate">ระดับ: {report.priority}</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <User className="w-4 h-4" />
-                              <span>ผู้แจ้ง: {report.createdBy}</span>
+                              <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                              <span className="truncate">ผู้แจ้ง: {report.createdBy}</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <Calendar className="w-4 h-4" />
-                              <span>{formatDate(report.date)}</span>
+                              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                              <span className="truncate">{formatDate(report.date)}</span>
                             </div>
-                            {report.attachments && report.attachments.length > 0 && (
-                              <div className="flex items-center space-x-1 text-blue-600">
-                                <Paperclip className="w-4 h-4" />
-                                <span className="text-xs">{report.attachments.length} ไฟล์</span>
-                              </div>
-                            )}
                           </div>
+                          {report.attachments && report.attachments.length > 0 && (
+                            <div className="flex items-center space-x-1 text-blue-600 mt-2">
+                              <Paperclip className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <span className="text-xs">{report.attachments.length} ไฟล์</span>
+                            </div>
+                          )}
                           
-                          <div className="flex items-center space-x-4">
-                            {/* สถานะ - Badge กลม */}
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border-2 flex items-center space-x-1 ${getStatusColor(report.status)}`}>
-                              <div className="w-1.5 h-1.5 rounded-full bg-current"></div>
+                          {/* Status and Priority - Mobile optimized */}
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3">
+                            {/* สถานะ - Badge */}
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(report.status)}`}>
+                              <div className="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></div>
                               <span>{report.status}</span>
                             </span>
                             
-                            {/* ความสำคัญ - Tag สี่เหลี่ยม */}
-                            <span className={`px-3 py-1.5 rounded text-xs font-semibold text-white shadow-sm ${
+                            {/* ความสำคัญ - Tag */}
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium text-white shadow-sm ${
                               report.priority === 'เร่งด่วน' ? 'bg-red-600' :
                               report.priority === 'สูง' ? 'bg-orange-600' :
                               report.priority === 'ปานกลาง' ? 'bg-yellow-600' :
@@ -323,20 +347,21 @@ export default function ReportsPage() {
                       </div>
                     </div>
                     
-                    {/* Actions */}
-                    <div className="relative action-menu-container">
+                    {/* Actions - Mobile friendly */}
+                    <div className="flex-shrink-0 relative action-menu-container">
                       <button
                         onClick={() => setShowActionMenu(showActionMenu === report.id ? null : report.id)}
-                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 sm:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <MoreVertical className="w-5 h-5" />
                       </button>
                       
                       {showActionMenu === report.id && (
-                        <div className="absolute right-0 top-12 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-48">
+                        <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-48">
                           <Link
                             href={`/dashboard/reports/${report.id}`}
-                            className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setShowActionMenu(null)}
                           >
                             <Eye className="w-4 h-4" />
                             <span>ดูรายละเอียด</span>

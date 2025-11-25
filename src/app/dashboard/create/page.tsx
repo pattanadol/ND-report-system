@@ -256,20 +256,20 @@ export default function CreateReportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-6 sm:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Success Message */}
         {isSuccess && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div className="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">แจ้งเรื่องสำเร็จ!</h3>
-              <p className="text-gray-600 mb-4">เรื่องแจ้งของคุณได้ถูกส่งเรียบร้อยแล้ว</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">แจ้งเรื่องสำเร็จ!</h3>
+              <p className="text-gray-600 mb-4 text-sm sm:text-base">เรื่องแจ้งของคุณได้ถูกส่งเรียบร้อยแล้ว</p>
               <div className="text-sm text-gray-500">กำลังนำทางไปยังหน้ารายการ...</div>
               <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
                 <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
@@ -278,36 +278,36 @@ export default function CreateReportPage() {
           </div>
         )}
 
-        {/* Header */}
-        <div className="mb-8">
+        {/* Header - Mobile optimized */}
+        <div className="mb-6 sm:mb-8">
           <button
             onClick={() => router.back()}
             className="flex items-center text-gray-600 hover:text-gray-800 mb-4 group"
             disabled={isSubmitting || isSuccess}
           >
-            <X className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-            กลับ
+            <X className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm sm:text-base">กลับ</span>
           </button>
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <FileText className="w-8 h-8 text-white" />
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">แจ้งเรื่องใหม่</h1>
-              <p className="text-gray-600 mt-1">แจ้งปัญหาในหมู่บ้าน/คอนโดต่อนิติบุคคล</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">แจ้งเรื่องใหม่</h1>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">แจ้งปัญหาในหมู่บ้าน/คอนโดต่อนิติบุคคล</p>
             </div>
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-              <FileText className="w-6 h-6 mr-3 text-blue-600" />
+        {/* Form - Mobile optimized */}
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+          <div className="card">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-blue-600" />
               รายละเอียดเรื่อง
             </h2>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* หัวข้อเรื่อง */}
               <div className="lg:col-span-2">
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -319,14 +319,12 @@ export default function CreateReportPage() {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                    errors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`${errors.title ? 'form-input-error' : 'form-input'}`}
                   placeholder="เช่น ห้องข้างเสียงดัง, แอร์เสีย, น้ำรั่ว, ส้วมตัน"
                 />
                 {errors.title && (
                   <p className="mt-2 text-sm text-red-600 flex items-center">
-                    <AlertTriangle className="w-4 h-4 mr-1" />
+                    <AlertTriangle className="w-4 h-4 mr-1 flex-shrink-0" />
                     {errors.title}
                   </p>
                 )}
@@ -342,9 +340,7 @@ export default function CreateReportPage() {
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                    errors.category ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`${errors.category ? 'form-input-error' : 'form-input'}`}
                 >
                   <option value="">เลือกหมวดหมู่</option>
                   {categories.map((category) => (
@@ -371,7 +367,7 @@ export default function CreateReportPage() {
                   name="priority"
                   value={formData.priority}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="form-input"
                 >
                   {priorities.map((priority) => (
                     <option key={priority.value} value={priority.value}>
@@ -392,9 +388,7 @@ export default function CreateReportPage() {
                   rows={6}
                   value={formData.description}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none ${
-                    errors.description ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`${errors.description ? 'form-input-error' : 'form-input'} resize-none min-h-[120px]`}
                   placeholder="กรุณาอธิบายปัญหาที่เกิดขึ้นอย่างละเอียด เช่น เวลาที่เกิด ลักษณะปัญหา..."
                 />
                 {errors.description && (
@@ -418,7 +412,7 @@ export default function CreateReportPage() {
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="form-input pl-10"
                     placeholder="เช่น ห้อง 201, อาคาร A, ชั้น 3"
                   />
                 </div>
@@ -427,7 +421,7 @@ export default function CreateReportPage() {
           </div>
 
           {/* ข้อมูลการติดต่อ */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+          <div className="card">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <User className="w-6 h-6 mr-3 text-blue-600" />
               ข้อมูลการติดต่อ
@@ -447,9 +441,7 @@ export default function CreateReportPage() {
                     name="contactName"
                     value={formData.contactName}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                      errors.contactName ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
+                    className={`${errors.contactName ? 'form-input-error' : 'form-input'} pl-10`}
                     placeholder="ชื่อ-นามสกุล"
                   />
                 </div>
@@ -474,9 +466,7 @@ export default function CreateReportPage() {
                     name="contactEmail"
                     value={formData.contactEmail}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                      errors.contactEmail ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
+                    className={`${errors.contactEmail ? 'form-input-error' : 'form-input'} pl-10`}
                     placeholder="example@email.com"
                   />
                 </div>
@@ -501,9 +491,7 @@ export default function CreateReportPage() {
                     name="contactPhone"
                     value={formData.contactPhone}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                      errors.contactPhone ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
+                    className={`${errors.contactPhone ? 'form-input-error' : 'form-input'} pl-10`}
                     placeholder="0812345678"
                   />
                 </div>
@@ -518,7 +506,7 @@ export default function CreateReportPage() {
           </div>
 
           {/* ไฟล์แนบ */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+          <div className="card">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
               <Upload className="w-6 h-6 mr-3 text-blue-600" />
               ไฟล์แนบ (ถ้ามี)
@@ -584,12 +572,12 @@ export default function CreateReportPage() {
           </div>
 
           {/* Submit Button */}
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={() => router.back()}
               disabled={isSubmitting || isSuccess}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-secondary order-2 sm:order-1 w-full sm:w-auto"
             >
               ยกเลิก
             </button>
@@ -597,7 +585,7 @@ export default function CreateReportPage() {
             <button
               type="submit"
               disabled={isSubmitting || isSuccess}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary order-1 sm:order-2 w-full sm:w-auto"
             >
               {isSubmitting ? (
                 <>

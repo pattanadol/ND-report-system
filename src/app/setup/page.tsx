@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { doc, setDoc, collection, addDoc } from 'firebase/firestore'
+import { doc, setDoc } from 'firebase/firestore'
 import { auth, db } from '../../lib/firebase/config'
 import Link from 'next/link'
 import { CheckCircle, AlertCircle, User, Database } from 'lucide-react'
@@ -66,24 +66,6 @@ export default function SetupPage() {
         createdAt: new Date()
       })
       setSuccess(prev => [...prev, '✅ บันทึกข้อมูล Admin ใน Database สำเร็จ'])
-
-      // สร้างข้อมูลรายงานทดสอบ
-      const testReport = {
-        title: 'รายงานทดสอบระบบ',
-        description: 'นี่คือรายงานทดสอบการทำงานของระบบ Firebase',
-        category: 'ทดสอบระบบ',
-        status: 'รอรับเรื่อง',
-        priority: 'ปานกลาง',
-        location: 'ห้องทดสอบ',
-        contactPhone: '081-234-5678',
-        contactEmail: adminData.email,
-        additionalInfo: 'สร้างโดยระบบ Setup',
-        createdBy: user.uid,
-        createdAt: new Date()
-      }
-
-      await addDoc(collection(db, 'reports'), testReport)
-      setSuccess(prev => [...prev, '✅ สร้างรายงานทดสอบสำเร็จ'])
 
       setSuccess(prev => [...prev, '🎉 ตั้งค่าเริ่มต้นเสร็จสิ้น!'])
       setStep(3)
@@ -176,7 +158,7 @@ export default function SetupPage() {
                   สร้าง Admin User
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  สร้างผู้ดูแลระบบคนแรกและข้อมูลทดสอบ
+                  สร้างผู้ดูแลระบบคนแรก
                 </p>
               </div>
 
@@ -226,7 +208,7 @@ export default function SetupPage() {
                   disabled={loading || !adminData.email || !adminData.password || !adminData.name || adminData.password.length < 6}
                   className="w-full bg-green-600 text-white py-3 rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  {loading ? 'กำลังสร้าง...' : 'สร้าง Admin และข้อมูลทดสอบ'}
+                  {loading ? 'กำลังสร้าง...' : 'สร้าง Admin User'}
                 </button>
               </div>
             </div>

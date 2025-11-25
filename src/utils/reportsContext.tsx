@@ -108,19 +108,23 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
 
   // ฟังก์ชันอัปเดตสถานะรายงานด้วย Firebase
   const updateReportStatus = async (id: string, status: ReportStatus): Promise<void> => {
+    console.log('🔄 Context: Starting update report status:', { id, status })
+    
     // Optimistic update: อัปเดตสถานะใน UI ทันที
     const previousReports = reports
     setReports(prev => prev.map(report => 
       report.id === id ? { ...report, status } : report
     ))
+    console.log('📱 UI updated optimistically')
     
     try {
       await reportService.updateReportStatus(id, status)
+      console.log('✅ Context: Report status updated successfully')
       // real-time listener จะอัปเดตข้อมูลจริงภายหลัง
     } catch (error: any) {
       // ถ้า error ให้ rollback กลับสู่สถานะเดิม
+      console.error('❌ Context: Error updating report status:', error)
       setReports(previousReports)
-      console.error('Error updating report status:', error)
       throw new Error(error.message || 'ไม่สามารถอัปเดตสถานะรายงานได้')
     }
   }

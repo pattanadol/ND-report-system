@@ -12,7 +12,7 @@ import {
   Timestamp,
   onSnapshot
 } from 'firebase/firestore'
-import { db } from '../firebase/config'
+import { auth, db } from '../firebase/config'
 import type { Report, ReportStatus, ReportPriority, Attachment } from '../../types'
 
 const REPORTS_COLLECTION = 'reports'
@@ -139,14 +139,29 @@ class ReportService {
   // อัปเดตสถานะรายงาน
   async updateReportStatus(id: string, status: ReportStatus): Promise<void> {
     try {
+      console.log('🔄 Updating report status:', { id, status })
+      
+      // ตรวจสอบ current user และ auth state
+      const currentUser = auth.currentUser
+      if (!currentUser) {
+        throw new Error('ไม่มีผู้ใช้ที่เข้าสู่ระบบ')
+      }
+      
+      console.log('👤 Current Firebase user:', {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        displayName: currentUser.displayName
+      })
+      
       const docRef = doc(db, REPORTS_COLLECTION, id)
       await updateDoc(docRef, {
         status: status,
         updatedAt: Timestamp.now()
       })
+      console.log('✅ Report status updated successfully')
     } catch (error) {
-      console.error('Error updating report status:', error)
-      throw new Error('ไม่สามารถอัปเดตสถานะรายงานได้')
+      console.error('❌ Error updating report status:', error)
+      throw new Error(`ไม่สามารถอัปเดตสถานะรายงานได้: ${error instanceof Error ? error.message : 'ข้อผิดพลาดไม่ทราบสาเหตุ'}`)
     }
   }
 
