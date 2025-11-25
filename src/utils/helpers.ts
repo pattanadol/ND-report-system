@@ -1,6 +1,10 @@
 // Helper functions สำหรับ formatting และ utilities
 
-export const formatDate = (date) => {
+// Types for report status and priority
+export type ReportStatus = 'รอรับเรื่อง' | 'กำลังดำเนินการ' | 'แก้ไขเสร็จ' | 'รอตรวจสอบ';
+export type ReportPriority = 'ต่ำ' | 'ปานกลาง' | 'สูง' | 'เร่งด่วน';
+
+export const formatDate = (date: Date | string | null | undefined): string => {
   if (!date) return '-'
   
   return new Date(date).toLocaleDateString('th-TH', {
@@ -10,7 +14,7 @@ export const formatDate = (date) => {
   })
 }
 
-export const formatDateTime = (date) => {
+export const formatDateTime = (date: Date | string | null | undefined): string => {
   if (!date) return '-'
   
   return new Date(date).toLocaleString('th-TH', {
@@ -22,18 +26,19 @@ export const formatDateTime = (date) => {
   })
 }
 
-export const getStatusColor = (status) => {
-  const statusColors = {
+export const getStatusColor = (status: ReportStatus): string => {
+  const statusColors: Record<ReportStatus, string> = {
     'รอรับเรื่อง': 'bg-orange-100 text-orange-700 border border-orange-200',
     'กำลังดำเนินการ': 'bg-blue-100 text-blue-700 border border-blue-200',
-    'แก้ไขเสร็จ': 'bg-green-100 text-green-700 border border-green-200'
+    'แก้ไขเสร็จ': 'bg-green-100 text-green-700 border border-green-200',
+    'รอตรวจสอบ': 'bg-gray-100 text-gray-700 border border-gray-200'
   }
   
   return statusColors[status] || 'bg-gray-100 text-gray-700 border border-gray-200'
 }
 
-export const getPriorityColor = (priority) => {
-  const priorityColors = {
+export const getPriorityColor = (priority: ReportPriority): string => {
+  const priorityColors: Record<ReportPriority, string> = {
     'ต่ำ': 'bg-slate-100 text-slate-700 border border-slate-200',
     'ปานกลาง': 'bg-yellow-100 text-yellow-700 border border-yellow-200',
     'สูง': 'bg-orange-100 text-orange-700 border border-orange-200',
@@ -43,28 +48,28 @@ export const getPriorityColor = (priority) => {
   return priorityColors[priority] || 'bg-gray-100 text-gray-700 border border-gray-200'
 }
 
-export const truncateText = (text, maxLength = 100) => {
-  if (!text || text.length <= maxLength) return text
+export const truncateText = (text: string | null | undefined, maxLength: number = 100): string => {
+  if (!text || text.length <= maxLength) return text || ''
   return text.substring(0, maxLength) + '...'
 }
 
-export const validateEmail = (email) => {
+export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email)
 }
 
-export const validatePhone = (phone) => {
+export const validatePhone = (phone: string): boolean => {
   const phoneRegex = /^[0-9]{10}$/
   return phoneRegex.test(phone.replace(/[-\s]/g, ''))
 }
 
-export const generateId = () => {
+export const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
-export const debounce = (func, wait) => {
-  let timeout
-  return function executedFunction(...args) {
+export const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
+  let timeout: NodeJS.Timeout | undefined
+  return function executedFunction(...args: Parameters<T>) {
     const later = () => {
       clearTimeout(timeout)
       func(...args)

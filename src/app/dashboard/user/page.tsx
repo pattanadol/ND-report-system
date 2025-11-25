@@ -16,18 +16,20 @@ import {
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
 import { formatDate, getStatusColor } from '../../../utils/helpers'
+import type { Report, ReportStats, ReportStatus } from '../../../types'
 
 export default function UserDashboardPage() {
   const { user, loading: authLoading, isUser } = useAuth()
   const { reports, deleteReport, loading } = useReports()
   const router = useRouter()
 
-  const [userReports, setUserReports] = useState([])
-  const [stats, setStats] = useState({
+  const [userReports, setUserReports] = useState<Report[]>([])
+  const [stats, setStats] = useState<ReportStats>({
     total: 0,
     pending: 0,
     inProgress: 0,
-    completed: 0
+    completed: 0,
+    urgent: 0
   })
 
   // ตรวจสอบการ login และสิทธิ์
@@ -53,7 +55,8 @@ export default function UserDashboardPage() {
         total: filteredReports.length,
         pending: filteredReports.filter(r => r.status === 'รอรับเรื่อง').length,
         inProgress: filteredReports.filter(r => r.status === 'กำลังดำเนินการ').length,
-        completed: filteredReports.filter(r => r.status === 'แก้ไขเสร็จ').length
+        completed: filteredReports.filter(r => r.status === 'แก้ไขเสร็จ').length,
+        urgent: filteredReports.filter(r => r.priority === 'เร่งด่วน').length
       }
       setStats(stats)
     }
@@ -72,7 +75,7 @@ export default function UserDashboardPage() {
 
   if (!user || !isUser()) return null
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: ReportStatus) => {
     switch (status) {
       case 'รอรับเรื่อง':
         return <Clock className="w-5 h-5 text-orange-600" />
@@ -80,13 +83,15 @@ export default function UserDashboardPage() {
         return <AlertTriangle className="w-5 h-5 text-blue-600" />
       case 'แก้ไขเสร็จ':
         return <CheckCircle className="w-5 h-5 text-green-600" />
+      case 'รอตรวจสอบ':
+        return <Clock className="w-5 h-5 text-gray-600" />
       default:
         return <FileText className="w-5 h-5 text-gray-600" />
     }
   }
 
   // ฟังก์ชันลบรายงาน
-  const handleDeleteReport = async (reportId, reportTitle) => {
+  const handleDeleteReport = async (reportId: number, reportTitle: string) => {
     const confirmMessage = `⚠️ ยืนยันการลบรายงาน\n\n` +
       `หัวข้อ: "${reportTitle}"\n\n` +
       `หากลบแล้ว จะไม่สามารถกู้คืนได้\n` +
@@ -104,7 +109,8 @@ export default function UserDashboardPage() {
           total: updatedReports.length,
           pending: updatedReports.filter(r => r.status === 'รอรับเรื่อง').length,
           inProgress: updatedReports.filter(r => r.status === 'กำลังดำเนินการ').length,
-          completed: updatedReports.filter(r => r.status === 'แก้ไขเสร็จ').length
+          completed: updatedReports.filter(r => r.status === 'แก้ไขเสร็จ').length,
+          urgent: updatedReports.filter(r => r.priority === 'เร่งด่วน').length
         }
         setStats(newStats)
         

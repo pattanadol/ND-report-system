@@ -1,10 +1,15 @@
 'use client'
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { Report, ReportsContextType, ReportStatus, ReportPriority, ReportStats } from '../types'
 
-const ReportsContext = createContext({})
+const ReportsContext = createContext<ReportsContextType | undefined>(undefined)
+
+interface ReportsProviderProps {
+  children: ReactNode
+}
 
 // ข้อมูลรายงานเริ่มต้น
-const initialReports = [
+const initialReports: Report[] = [
   {
     id: 1,
     title: 'ห้องข้างเสียงดังมาก',
@@ -147,8 +152,8 @@ const initialReports = [
   }
 ]
 
-export function ReportsProvider({ children }) {
-  const [reports, setReports] = useState([])
+export function ReportsProvider({ children }: ReportsProviderProps) {
+  const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
 
   // โหลดข้อมูลรายงานเมื่อเริ่มต้น
@@ -161,8 +166,8 @@ export function ReportsProvider({ children }) {
   }, [])
 
   // ฟังก์ชันสร้างรายงานใหม่
-  const createReport = (reportData) => {
-    const newReport = {
+  const addReport = (reportData: Omit<Report, 'id' | 'date'>): Report => {
+    const newReport: Report = {
       id: Date.now(),
       ...reportData,
       date: new Date().toISOString().split('T')[0],
@@ -174,29 +179,59 @@ export function ReportsProvider({ children }) {
     return newReport
   }
 
-  // ฟังก์ชันอัปเดตสถานะรายงาน
-  const updateReportStatus = (id, newStatus) => {
+  // ฟังก์ชันอัปเดตรายงาน
+  const updateReport = (id: number, updates: Partial<Report>): void => {
     const updatedReports = reports.map(report =>
-      report.id === id ? { ...report, status: newStatus } : report
+      report.id === id ? { ...report, ...updates } : report
     )
     setReports(updatedReports)
     localStorage.setItem('reports', JSON.stringify(updatedReports))
   }
 
+  // ฟังก์ชันอัปเดตสถานะรายงาน
+  const updateReportStatus = (id: number, status: ReportStatus): void => {
+    const updatedReports = reports.map(report =>
+      report.id === id ? { ...report, status } : report
+    )
+    setReports(updatedReports)
+    localStorage.setItem('reports', JSON.stringify(updatedReports))
+  }
+
+  // ฟังก์ชันสร้างรายงานใหม่ (สำหรับ create page)
+  const createReport = async (reportData: any): Promise<void> => {
+    const newReport: Report = {
+      id: Date.now(),
+      title: reportData.title,
+      description: reportData.description,
+      category: reportData.category,
+      status: 'รอรับเรื่อง' as ReportStatus,
+      priority: reportData.priority as ReportPriority,
+      date: new Date().toISOString().split('T')[0],
+      createdBy: reportData.contactName,
+      contactEmail: reportData.contactEmail,
+      contactPhone: reportData.contactPhone,
+      location: reportData.location,
+      additionalInfo: reportData.additionalInfo || ''
+    }
+    const updatedReports = [newReport, ...reports]
+    setReports(updatedReports)
+    localStorage.setItem('reports', JSON.stringify(updatedReports))
+  }
+
   // ฟังก์ชันลบรายงาน
-  const deleteReport = (id) => {
+  const deleteReport = (id: number): void => {
     const updatedReports = reports.filter(report => report.id !== id)
     setReports(updatedReports)
     localStorage.setItem('reports', JSON.stringify(updatedReports))
   }
 
   // ฟังก์ชันดึงรายงานตาม ID
-  const getReportById = (id) => {
-    return reports.find(report => report.id === parseInt(id))
+  const getReportById = (id: number): Report | undefined => {
+    return reports.find(report => report.id === id)
   }
 
   // สถิติรายงาน
-  const getStats = () => {
+  const getStats = (): ReportStats => {
     return {
       total: reports.length,
       pending: reports.filter(r => r.status === 'รอรับเรื่อง').length,
@@ -209,9 +244,11 @@ export function ReportsProvider({ children }) {
   return (
     <ReportsContext.Provider value={{
       reports,
-      createReport,
+      addReport,
+      updateReport,
       updateReportStatus,
       deleteReport,
+      createReport,
       getReportById,
       getStats,
       loading
@@ -221,7 +258,7 @@ export function ReportsProvider({ children }) {
   )
 }
 
-export const useReports = () => {
+export const useReports = (): ReportsContextType => {
   const context = useContext(ReportsContext)
   if (!context) {
     throw new Error('useReports must be used within a ReportsProvider')

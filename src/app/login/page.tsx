@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, FormEvent, ChangeEvent } from 'react'
 import { User, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../utils/authContext'
 
@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError('')
@@ -22,13 +22,13 @@ export default function LoginPage() {
     const result = await login(formData.email, formData.password)
     
     if (!result.success) {
-      setError(result.error)
+      setError(result.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ')
     }
     
     setLoading(false)
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value

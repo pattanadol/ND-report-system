@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, FormEvent, ChangeEvent } from 'react'
 import { User, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../utils/authContext'
 
@@ -18,7 +18,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError('')
@@ -45,13 +45,13 @@ export default function RegisterPage() {
     const result = await register(formData)
     
     if (!result.success) {
-      setError(result.error)
+      setError(result.error || 'เกิดข้อผิดพลาดในการสมัครสมาชิก')
     }
     
     setLoading(false)
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value

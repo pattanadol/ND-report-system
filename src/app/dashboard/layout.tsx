@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -20,7 +20,11 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../utils/authContext'
 
-export default function DashboardLayout({ children }) {
+interface DashboardLayoutProps {
+  children: ReactNode
+}
+
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout, loading, isAdmin } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -150,6 +154,15 @@ export default function DashboardLayout({ children }) {
                 }`}>
                   <Plus className="w-5 h-5" />
                   <span className="font-medium">แจ้งปัญหาใหม่</span>
+                </Link>
+
+                <Link href="/dashboard/about" className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  pathname === '/dashboard/about' 
+                    ? 'text-white bg-indigo-600 shadow-md' 
+                    : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'
+                }`}>
+                  <Info className="w-5 h-5" />
+                  <span className="font-medium">เกี่ยวกับเรา</span>
                 </Link>
               </>
             )}

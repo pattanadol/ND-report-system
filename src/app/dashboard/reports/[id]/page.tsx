@@ -16,21 +16,20 @@ import {
   CheckCircle,
   Edit,
   Trash2,
-  MessageSquare,
-  Send,
   Image as ImageIcon,
   Download
 } from 'lucide-react'
 import { useAuth } from '../../../../utils/authContext'
 import { useReports } from '../../../../utils/reportsContext'
 import { formatDate, formatDateTime, getStatusColor, getPriorityColor } from '../../../../utils/helpers'
+import type { ReportStatus } from '../../../../types'
 
-export default function ReportDetailPage({ params }) {
+export default function ReportDetailPage({ params }: { params: { id: string } }) {
   const { user } = useAuth()
   const { reports, updateReportStatus, deleteReport, loading } = useReports()
   const router = useRouter()
   const [newComment, setNewComment] = useState('')
-  const [comments, setComments] = useState([])
+  const [comments, setComments] = useState<Comment[]>([])
 
   const reportId = parseInt(params.id)
   const report = reports.find(r => r.id === reportId)
@@ -99,7 +98,7 @@ export default function ReportDetailPage({ params }) {
   if (!user) return null
   if (!report) return notFound()
 
-  const handleStatusChange = async (newStatus) => {
+  const handleStatusChange = async (newStatus: ReportStatus) => {
     try {
       await updateReportStatus(reportId, newStatus)
       alert('อัปเดตสถานะเรียบร้อย')
@@ -124,19 +123,19 @@ export default function ReportDetailPage({ params }) {
 
   const handleAddComment = () => {
     if (newComment.trim()) {
-      const comment = {
+      const comment: Comment = {
         id: comments.length + 1,
-        author: user.name,
+        author: user?.name || '',
         message: newComment,
         timestamp: new Date().toLocaleString('th-TH'),
-        isAdmin: user.role === 'admin'
+        isAdmin: user?.role === 'admin'
       }
       setComments([...comments, comment])
       setNewComment('')
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: ReportStatus) => {
     switch (status) {
       case 'รอรับเรื่อง':
         return <Clock className="w-5 h-5 text-orange-600" />
@@ -144,6 +143,8 @@ export default function ReportDetailPage({ params }) {
         return <AlertTriangle className="w-5 h-5 text-blue-600" />
       case 'แก้ไขเสร็จ':
         return <CheckCircle className="w-5 h-5 text-green-600" />
+      case 'รอตรวจสอบ':
+        return <Clock className="w-5 h-5 text-gray-600" />
       default:
         return <FileText className="w-5 h-5 text-gray-600" />
     }
@@ -302,63 +303,6 @@ export default function ReportDetailPage({ params }) {
                 </div>
               </div>
             </div>
-
-            {/* Comments Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">ความคิดเห็นและการติดตาม</h2>
-              
-              {/* Comments List */}
-              <div className="space-y-4 mb-6">
-                {comments.map((comment) => (
-                  <div key={comment.id} className={`flex space-x-3 ${comment.isAdmin ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                      comment.isAdmin ? 'bg-indigo-600' : 'bg-gray-500'
-                    }`}>
-                      {comment.author.charAt(0)}
-                    </div>
-                    <div className={`flex-1 ${comment.isAdmin ? 'text-right' : ''}`}>
-                      <div className={`inline-block max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
-                        comment.isAdmin 
-                          ? 'bg-indigo-600 text-white rounded-br-none' 
-                          : 'bg-gray-100 text-gray-800 rounded-bl-none'
-                      }`}>
-                        <p className="text-sm">{comment.message}</p>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {comment.author} • {comment.timestamp}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add Comment */}
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex space-x-3">
-                  <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                    {user.name.charAt(0)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="เขียนความคิดเห็น..."
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
-                      />
-                      <button
-                        onClick={handleAddComment}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                      >
-                        <Send className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Sidebar */}
@@ -429,44 +373,56 @@ export default function ReportDetailPage({ params }) {
               <div className="space-y-3">
                 <button
                   onClick={() => handleStatusChange('รอรับเรื่อง')}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 ${
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                     report.status === 'รอรับเรื่อง' 
                       ? 'bg-orange-100 text-orange-700 border-2 border-orange-300 cursor-not-allowed' 
                       : 'bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100'
                   }`}
                   disabled={report.status === 'รอรับเรื่อง'}
                 >
-                  <Clock className="w-4 h-4" />
-                  <span>รอรับเรื่อง</span>
-                  {report.status === 'รอรับเรื่อง' && <span className="text-xs">(สถานะปัจจุบัน)</span>}
+                  <div className="flex items-center justify-center space-x-2">
+                    <Clock className="w-4 h-4" />
+                    <span>รอรับเรื่อง</span>
+                  </div>
+                  {report.status === 'รอรับเรื่อง' && (
+                    <div className="text-xs text-orange-600 mt-1">สถานะปัจจุบัน</div>
+                  )}
                 </button>
 
                 <button
                   onClick={() => handleStatusChange('กำลังดำเนินการ')}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 ${
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                     report.status === 'กำลังดำเนินการ' 
                       ? 'bg-blue-100 text-blue-700 border-2 border-blue-300 cursor-not-allowed' 
                       : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
                   }`}
                   disabled={report.status === 'กำลังดำเนินการ'}
                 >
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>กำลังดำเนินการ</span>
-                  {report.status === 'กำลังดำเนินการ' && <span className="text-xs">(สถานะปัจจุบัน)</span>}
+                  <div className="flex items-center justify-center space-x-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>กำลังดำเนินการ</span>
+                  </div>
+                  {report.status === 'กำลังดำเนินการ' && (
+                    <div className="text-xs text-blue-600 mt-1">สถานะปัจจุบัน</div>
+                  )}
                 </button>
 
                 <button
                   onClick={() => handleStatusChange('แก้ไขเสร็จ')}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 ${
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                     report.status === 'แก้ไขเสร็จ' 
                       ? 'bg-green-100 text-green-700 border-2 border-green-300 cursor-not-allowed' 
                       : 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
                   }`}
                   disabled={report.status === 'แก้ไขเสร็จ'}
                 >
-                  <CheckCircle className="w-4 h-4" />
-                  <span>แก้ไขเสร็จ</span>
-                  {report.status === 'แก้ไขเสร็จ' && <span className="text-xs">(สถานะปัจจุบัน)</span>}
+                  <div className="flex items-center justify-center space-x-2">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>แก้ไขเสร็จ</span>
+                  </div>
+                  {report.status === 'แก้ไขเสร็จ' && (
+                    <div className="text-xs text-green-600 mt-1">สถานะปัจจุบัน</div>
+                  )}
                 </button>
               </div>
               

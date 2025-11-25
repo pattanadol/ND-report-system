@@ -1,11 +1,16 @@
 'use client'
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
+import { User, AuthContextType, LoginForm, RegisterForm } from '../types'
 
-const AuthContext = createContext({})
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+interface AuthProviderProps {
+  children: ReactNode
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -13,7 +18,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const savedUser = localStorage.getItem('user')
     if (savedUser) {
-      const userData = JSON.parse(savedUser)
+      const userData: User = JSON.parse(savedUser)
       // อัปเดตชื่อใหม่ถ้าเป็น admin
       if (userData.email === 'admin@test.com') {
         userData.name = 'พัฒนดล นิโครธานนท์'
@@ -25,11 +30,11 @@ export function AuthProvider({ children }) {
   }, [])
 
   // ฟังก์ชัน login
-  const login = async (email, password) => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       // จำลองการ login (ในระบบจริงจะเรียก API)
       if (email === 'admin@test.com' && password === '123456') {
-        const userData = {
+        const userData: User = {
           id: 1,
           email: email,
           name: 'พัฒนดล นิโครธานนท์',
@@ -40,7 +45,7 @@ export function AuthProvider({ children }) {
         router.push('/dashboard')
         return { success: true }
       } else if (email === 'user@test.com' && password === '123456') {
-        const userData = {
+        const userData: User = {
           id: 2,
           email: email,
           name: 'ผู้ใช้ทั่วไป',
@@ -50,19 +55,28 @@ export function AuthProvider({ children }) {
         localStorage.setItem('user', JSON.stringify(userData))
         router.push('/dashboard')
         return { success: true }
-      } else {
-        return { success: false, error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' }
+      } else if (email === 'testuser@test.com' && password === '123456') {
+        const userData: User = {
+          id: 3,
+          email: email,
+          name: 'ผู้ใช้ทดสอบ',
+          role: 'user'
+        }
+        setUser(userData)
+        localStorage.setItem('user', JSON.stringify(userData))
+        router.push('/dashboard')
+        return { success: true }
       }
+      return { success: false, error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' }
     } catch (error) {
-      return { success: false, error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
+      console.error('Login error:', error)
+      return { success: false, error: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' }
     }
   }
 
-  // ฟังก์ชัน register
-  const register = async (userData) => {
+  const register = async (userData: { name: string; email: string; password: string }): Promise<{ success: boolean; error?: string }> => {
     try {
-      // จำลองการ register
-      const newUser = {
+      const newUser: User = {
         id: Date.now(),
         email: userData.email,
         name: userData.name,
@@ -73,35 +87,22 @@ export function AuthProvider({ children }) {
       router.push('/dashboard')
       return { success: true }
     } catch (error) {
-      return { success: false, error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' }
+      return { success: false, error: 'เกิดข้อผิดพลาดในการสมัครสมาชิก' }
     }
   }
 
   // ฟังก์ชัน logout
-  const logout = () => {
+  const logout = (): void => {
     setUser(null)
     localStorage.removeItem('user')
     router.push('/')
   }
 
   // เพิ่มฟังก์ชันตรวจสอบสิทธิ์
-  const isAdmin = () => {
-    return user?.role === 'admin'
-  }
+  const isAdmin: boolean = user?.role === 'admin' || false
 
-  const isUser = () => {
-    return user?.role === 'user'
-  }
-
-  const hasPermission = (permission) => {
-    if (!user) return false
-    
-    const permissions = {
-      'admin': ['view_all_reports', 'manage_status', 'delete_reports', 'view_dashboard', 'create_reports'],
-      'user': ['view_own_reports', 'create_reports']
-    }
-    
-    return permissions[user.role]?.includes(permission) || false
+  const isUser = (): boolean => {
+    return user?.role === 'user' || false
   }
 
   return (
@@ -112,15 +113,14 @@ export function AuthProvider({ children }) {
       logout,
       loading,
       isAdmin,
-      isUser,
-      hasPermission
+      isUser
     }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider')

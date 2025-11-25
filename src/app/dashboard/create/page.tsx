@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { 
   Save, 
@@ -15,6 +15,11 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
+import type { CreateReportForm } from '../../../types'
+
+interface FormErrors {
+  [key: string]: string
+}
 
 const categories = [
   'เรื่องร้องเรียน',
@@ -39,7 +44,7 @@ export default function CreateReportPage() {
   const { createReport } = useReports()
   const router = useRouter()
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateReportForm>({
     title: '',
     description: '',
     category: '',
@@ -51,9 +56,9 @@ export default function CreateReportPage() {
     attachments: []
   })
   
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [attachmentPreviews, setAttachmentPreviews] = useState([])
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [attachmentPreviews, setAttachmentPreviews] = useState<string[]>([])
 
   // ตรวจสอบการ login
   useEffect(() => {
@@ -86,7 +91,7 @@ export default function CreateReportPage() {
 
   if (!user) return null
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -102,8 +107,8 @@ export default function CreateReportPage() {
     }
   }
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files)
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
     const maxFiles = 5
     const maxSize = 10 * 1024 * 1024 // 10MB
     
@@ -138,7 +143,7 @@ export default function CreateReportPage() {
         return URL.createObjectURL(file)
       }
       return null
-    })
+    }).filter(Boolean) as string[]
     setAttachmentPreviews(previews)
     
     // ล้าง error
@@ -150,7 +155,7 @@ export default function CreateReportPage() {
     }
   }
 
-  const removeAttachment = (index) => {
+  const removeAttachment = (index: number) => {
     const newAttachments = Array.from(formData.attachments).filter((_, i) => i !== index)
     setFormData(prev => ({
       ...prev,
@@ -161,8 +166,8 @@ export default function CreateReportPage() {
     setAttachmentPreviews(newPreviews)
   }
 
-  const validateForm = () => {
-    const newErrors = {}
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}
     
     if (!formData.title.trim()) {
       newErrors.title = 'กรุณากรอกหัวข้อเรื่อง'
@@ -194,7 +199,7 @@ export default function CreateReportPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
     if (!validateForm()) return

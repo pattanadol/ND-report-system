@@ -21,6 +21,7 @@ import {
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
 import { formatDate, getStatusColor, getPriorityColor, truncateText } from '../../../utils/helpers'
+import type { ReportStatus } from '../../../types'
 
 const statusOptions = [
   { value: '', label: 'ทุกสถานะ' },
@@ -45,6 +46,7 @@ export default function ReportsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
+  const [showActionMenu, setShowActionMenu] = useState<number | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [selectedReport, setSelectedReport] = useState(null)
 
@@ -52,17 +54,15 @@ export default function ReportsPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login')
-    } else if (user && !isAdmin()) {
+    } else if (user && !isAdmin) {
       router.push('/dashboard/user')
     }
   }, [user, authLoading, router, isAdmin])
 
-  const [showActionMenu, setShowActionMenu] = useState(null)
-
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showActionMenu && !event.target.closest('.action-menu-container')) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showActionMenu && event.target && !(event.target as Element).closest('.action-menu-container')) {
         setShowActionMenu(null)
       }
     }
@@ -85,7 +85,7 @@ export default function ReportsPage() {
     )
   }
 
-  if (!user || !isAdmin()) {
+  if (!user || !isAdmin) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -108,7 +108,7 @@ export default function ReportsPage() {
     return matchesSearch && matchesStatus && matchesPriority
   })
 
-  const handleStatusChange = async (reportId, newStatus) => {
+  const handleStatusChange = async (reportId: number, newStatus: ReportStatus) => {
     try {
       await updateReportStatus(reportId, newStatus)
       setShowActionMenu(null)
@@ -118,7 +118,7 @@ export default function ReportsPage() {
     }
   }
 
-  const handleDeleteReport = async (reportId) => {
+  const handleDeleteReport = async (reportId: number) => {
     if (window.confirm('คุณต้องการลบรายงานนี้หรือไม่?')) {
       try {
         await deleteReport(reportId)
@@ -131,7 +131,7 @@ export default function ReportsPage() {
     }
   }
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: ReportStatus) => {
     switch (status) {
       case 'รอรับเรื่อง':
         return <Clock className="w-4 h-4" />
