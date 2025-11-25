@@ -16,6 +16,13 @@ export interface LoginUser extends User {
 export type ReportStatus = 'รอรับเรื่อง' | 'กำลังดำเนินการ' | 'แก้ไขเสร็จ' | 'รอตรวจสอบ'
 export type ReportPriority = 'ต่ำ' | 'ปานกลาง' | 'สูง' | 'เร่งด่วน'
 
+export interface Attachment {
+  name: string
+  size: number
+  type: string
+  url: string
+}
+
 export interface Report {
   id: string
   title: string
@@ -29,6 +36,7 @@ export interface Report {
   contactPhone: string
   location: string
   additionalInfo?: string
+  attachments?: Attachment[]
 }
 
 export interface Comment {

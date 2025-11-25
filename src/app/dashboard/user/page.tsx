@@ -11,7 +11,8 @@ import {
   Calendar,
   User,
   BarChart3,
-  Trash2
+  Trash2,
+  Paperclip
 } from 'lucide-react'
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
@@ -276,6 +277,12 @@ export default function UserDashboardPage() {
                               <Calendar className="w-4 h-4" />
                               <span>{formatDate(report.date)}</span>
                             </div>
+                            {report.attachments && report.attachments.length > 0 && (
+                              <div className="flex items-center space-x-1 text-blue-600">
+                                <Paperclip className="w-4 h-4" />
+                                <span className="text-xs">{report.attachments.length} ไฟล์</span>
+                              </div>
+                            )}
                           </div>
                           
                           <div className="flex items-center justify-between">

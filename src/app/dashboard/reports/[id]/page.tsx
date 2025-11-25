@@ -316,13 +316,49 @@ export default function ReportDetailPage({ params }: { params: { id: string } })
                 )}
 
                 {/* Attachments */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">ไฟล์แนบ</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">ไม่มีไฟล์แนบ</p>
+                {report.attachments && report.attachments.length > 0 ? (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      ไฟล์แนบ ({report.attachments.length} ไฟล์)
+                    </label>
+                    <div className="space-y-3">
+                      {report.attachments.map((attachment, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border">
+                          {attachment.type.startsWith('image/') ? (
+                            <img 
+                              src={attachment.url} 
+                              alt={attachment.name}
+                              className="w-12 h-12 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <FileText className="w-6 h-6 text-blue-600" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{attachment.name}</p>
+                            <p className="text-xs text-gray-500">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                          <button
+                            onClick={() => window.open(attachment.url, '_blank')}
+                            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="ดูไฟล์"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">ไฟล์แนบ</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                      <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">ไม่มีไฟล์แนบ</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

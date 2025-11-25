@@ -13,7 +13,7 @@ import {
   onSnapshot
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
-import type { Report, ReportStatus, ReportPriority } from '../../types'
+import type { Report, ReportStatus, ReportPriority, Attachment } from '../../types'
 
 const REPORTS_COLLECTION = 'reports'
 
@@ -29,6 +29,7 @@ interface FirestoreReportData {
   contactPhone: string
   location: string
   additionalInfo?: string
+  attachments?: Attachment[]
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -63,7 +64,8 @@ class ReportService {
           contactEmail: data.contactEmail,
           contactPhone: data.contactPhone,
           location: data.location,
-          additionalInfo: data.additionalInfo || ''
+          additionalInfo: data.additionalInfo || '',
+          attachments: data.attachments || []
         })
       })
       
@@ -94,7 +96,8 @@ class ReportService {
           contactEmail: data.contactEmail,
           contactPhone: data.contactPhone,
           location: data.location,
-          additionalInfo: data.additionalInfo || ''
+          additionalInfo: data.additionalInfo || '',
+          attachments: data.attachments || []
         }
       }
       
@@ -120,6 +123,7 @@ class ReportService {
         contactPhone: reportData.contactPhone,
         location: reportData.location,
         additionalInfo: reportData.additionalInfo,
+        attachments: reportData.attachments || [],
         createdAt: now,
         updatedAt: now
       }
@@ -205,7 +209,8 @@ class ReportService {
           contactEmail: data.contactEmail,
           contactPhone: data.contactPhone,
           location: data.location,
-          additionalInfo: data.additionalInfo || ''
+          additionalInfo: data.additionalInfo || '',
+          attachments: data.attachments || []
         })
       })
       callback(reports)

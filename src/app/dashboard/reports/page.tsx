@@ -16,7 +16,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  Shield
+  Shield,
+  Paperclip
 } from 'lucide-react'
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
@@ -292,6 +293,12 @@ export default function ReportsPage() {
                               <Calendar className="w-4 h-4" />
                               <span>{formatDate(report.date)}</span>
                             </div>
+                            {report.attachments && report.attachments.length > 0 && (
+                              <div className="flex items-center space-x-1 text-blue-600">
+                                <Paperclip className="w-4 h-4" />
+                                <span className="text-xs">{report.attachments.length} ไฟล์</span>
+                              </div>
+                            )}
                           </div>
                           
                           <div className="flex items-center space-x-4">

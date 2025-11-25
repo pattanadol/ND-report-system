@@ -137,7 +137,8 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
         contactEmail: reportData.contactEmail,
         contactPhone: reportData.contactPhone,
         location: reportData.location,
-        additionalInfo: reportData.additionalInfo || ''
+        additionalInfo: reportData.additionalInfo || '',
+        attachments: reportData.attachments || []
       }
       
       // Optimistic update: เพิ่มรายงานใหม่ใน state ทันที
