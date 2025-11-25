@@ -155,15 +155,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Plus className="w-5 h-5" />
                   <span className="font-medium">แจ้งปัญหาใหม่</span>
                 </Link>
-
-                <Link href="/dashboard/about" className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  pathname === '/dashboard/about' 
-                    ? 'text-white bg-indigo-600 shadow-md' 
-                    : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'
-                }`}>
-                  <Info className="w-5 h-5" />
-                  <span className="font-medium">เกี่ยวกับเรา</span>
-                </Link>
               </>
             )}
             
