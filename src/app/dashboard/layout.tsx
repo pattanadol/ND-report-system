@@ -19,6 +19,7 @@ import {
   Info
 } from 'lucide-react'
 import { useAuth } from '../../utils/authContext'
+import { useReports } from '../../utils/reportsContext'
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -26,6 +27,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout, loading, isAdmin } = useAuth()
+  const { reports: allReports } = useReports()
   const router = useRouter()
   const pathname = usePathname()
 
@@ -39,10 +41,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // แสดง loading ขณะตรวจสอบ authentication
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">กำลังโหลด...</p>
+          <p className="mt-4 text-gray-600">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
+          <div className="mt-2 text-xs text-gray-400">
+            กรุณารอสักครู่...
+          </div>
         </div>
       </div>
     )
@@ -124,6 +129,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 }`}>
                   <FileText className="w-5 h-5" />
                   <span className="font-medium">จัดการเรื่องแจ้ง</span>
+                  <span className="ml-auto px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                    {allReports.length}
+                  </span>
                 </Link>
                 
                 <Link href="/dashboard/create" className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
@@ -145,6 +153,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 }`}>
                   <Home className="w-5 h-5" />
                   <span className="font-semibold">หน้าหลัก</span>
+                  <span className="ml-auto px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                    {allReports.filter(report => report.createdBy === user.name).length}
+                  </span>
                 </Link>
                 
                 <Link href="/dashboard/create" className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${

@@ -54,11 +54,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setUser(userData)
       
-      // Redirect ตาม role
+      // Redirect ทันทีตาม role
       if (userData.role === 'admin') {
-        router.push('/dashboard')  // Admin ไปหน้า dashboard หลัก
+        router.replace('/dashboard')  // Admin ไปหน้า dashboard หลัก
       } else {
-        router.push('/dashboard/user')  // User ไปหน้า user dashboard
+        router.replace('/dashboard/user')  // User ไปหน้า user dashboard
       }
       
       return { success: true }

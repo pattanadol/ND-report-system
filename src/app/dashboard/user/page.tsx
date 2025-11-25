@@ -44,30 +44,42 @@ export default function UserDashboardPage() {
 
   // กรองรายงานของ user เฉพาะคนนี้
   useEffect(() => {
-    if (user && reports) {
-      const filteredReports = reports.filter(report => 
-        report.createdBy === user.name || report.contactEmail === user.email
-      )
-      setUserReports(filteredReports)
+    if (user) {
+      // ตั้งค่าเริ่มต้นเพื่อไม่ให้ loading นาน
+      setUserReports([])
+      setStats({
+        total: 0,
+        pending: 0,
+        inProgress: 0,
+        completed: 0,
+        urgent: 0
+      })
+      
+      if (reports && reports.length > 0) {
+        const filteredReports = reports.filter(report => 
+          report.createdBy === user.name || report.contactEmail === user.email
+        )
+        setUserReports(filteredReports)
 
-      // คำนวณสถิติ
-      const stats = {
-        total: filteredReports.length,
-        pending: filteredReports.filter(r => r.status === 'รอรับเรื่อง').length,
-        inProgress: filteredReports.filter(r => r.status === 'กำลังดำเนินการ').length,
-        completed: filteredReports.filter(r => r.status === 'แก้ไขเสร็จ').length,
-        urgent: filteredReports.filter(r => r.priority === 'เร่งด่วน').length
+        // คำนวณสถิติ
+        const newStats = {
+          total: filteredReports.length,
+          pending: filteredReports.filter(r => r.status === 'รอรับเรื่อง').length,
+          inProgress: filteredReports.filter(r => r.status === 'กำลังดำเนินการ').length,
+          completed: filteredReports.filter(r => r.status === 'แก้ไขเสร็จ').length,
+          urgent: filteredReports.filter(r => r.priority === 'เร่งด่วน').length
+        }
+        setStats(newStats)
       }
-      setStats(stats)
     }
   }, [user, reports])
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">กำลังโหลด...</p>
+          <p className="mt-4 text-gray-600">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
         </div>
       </div>
     )
@@ -91,7 +103,7 @@ export default function UserDashboardPage() {
   }
 
   // ฟังก์ชันลบรายงาน
-  const handleDeleteReport = async (reportId: number, reportTitle: string) => {
+  const handleDeleteReport = async (reportId: string, reportTitle: string) => {
     const confirmMessage = `⚠️ ยืนยันการลบรายงาน\n\n` +
       `หัวข้อ: "${reportTitle}"\n\n` +
       `หากลบแล้ว จะไม่สามารถกู้คืนได้\n` +
@@ -100,21 +112,12 @@ export default function UserDashboardPage() {
     if (window.confirm(confirmMessage)) {
       try {
         await deleteReport(reportId)
-        // อัปเดตรายการ userReports
-        const updatedReports = userReports.filter(report => report.id !== reportId)
-        setUserReports(updatedReports)
         
-        // อัปเดตสถิติทันที
-        const newStats = {
-          total: updatedReports.length,
-          pending: updatedReports.filter(r => r.status === 'รอรับเรื่อง').length,
-          inProgress: updatedReports.filter(r => r.status === 'กำลังดำเนินการ').length,
-          completed: updatedReports.filter(r => r.status === 'แก้ไขเสร็จ').length,
-          urgent: updatedReports.filter(r => r.priority === 'เร่งด่วน').length
-        }
-        setStats(newStats)
+        // optimistic update จะจัดการให้แล้ว ไม่ต้อง manual update
+        setTimeout(() => {
+          alert('✅ ลบรายงานสำเร็จแล้ว!')
+        }, 300)
         
-        alert('✅ ลบรายงานสำเร็จ')
       } catch (error) {
         console.error('Error deleting report:', error)
         alert('❌ เกิดข้อผิดพลาดในการลบรายงาน\nกรุณาลองใหม่อีกครั้ง')

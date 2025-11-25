@@ -2,156 +2,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Report, ReportsContextType, ReportStatus, ReportPriority, ReportStats } from '../types'
 import { reportService } from '../lib/services'
+import { seedInitialData } from '../lib/services/seedData'
 
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined)
 
 interface ReportsProviderProps {
   children: ReactNode
 }
-
-// ข้อมูลรายงานเริ่มต้น
-const initialReports: Report[] = [
-  {
-    id: 1,
-    title: 'ห้องข้างเสียงดังมาก',
-    description: 'ห้อง B205 เสียงดังมากตั้งแต่เที่ยงคืนถึงเช้า เข้าปาร์ตี้ดัง รบกวนการพักผ่อนของลูกบ้าน',
-    category: 'เรื่องร้องเรียน',
-    status: 'รอรับเรื่อง',
-    priority: 'สูง',
-    date: '2024-11-24',
-    createdBy: 'นายเสมา อยู่สุข',
-    contactEmail: 'sama@email.com',
-    contactPhone: '081-234-5678',
-    location: 'ห้อง B205 ชั้น 12',
-    additionalInfo: 'เสียงดังตั้งแต่หลัง 22.00 น. รบกวนการนอน'
-  },
-  {
-    id: 2,
-    title: 'ส้วมตัน น้ำท้วม',
-    description: 'ส้วมชั้น 15 ตันมาก น้ำท้วมขึ้นมา กลิ่นเหม็น โทรแล้วแต่ยังไม่มีคนมาซ่อม',
-    category: 'การบำรุงรักษา',
-    status: 'กำลังดำเนินการ',
-    priority: 'เร่งด่วน',
-    date: '2024-11-23',
-    createdBy: 'คุณหนิง ผู้อยู่อาศัย',
-    contactEmail: 'ning@email.com',
-    contactPhone: '089-876-5432',
-    location: 'อาคาร A ชั้น 15',
-    additionalInfo: 'ติดต่อนิติบุคคลแล้ว ขอช่างมาด่วน'
-  },
-  {
-    id: 3,
-    title: 'แอร์ไม่เย็น ร้อนมาก',
-    description: 'ห้อง A302 แอร์เปิดไม่เย็น อากาศร้อนมาก ด้านในมีเสียงผิดปกติ ไม่สามารถปรับอุณหภูมิได้',
-    category: 'ปัญหาไฟฟ้า',
-    status: 'แก้ไขเสร็จ',
-    priority: 'ปานกลาง',
-    date: '2024-11-22',
-    createdBy: 'ปิ่นเกล้า ช่างดี',
-    contactEmail: 'pinkao@email.com',
-    contactPhone: '092-345-6789',
-    location: 'ห้อง A302 ชั้น 3',
-    additionalInfo: 'ต้องการใช้แอร์ทุกวัน เพราะการทำงานที่บ้าน'
-  },
-  {
-    id: 4,
-    title: 'น้ำรั่วจากท่อ น้ำท่วมลิฟท์',
-    description: 'มีน้ำรั่วจากท่อน้ำรั่วขึ้นมาถึงชั้น 8 เริ่มรั่วเมื่อเช้า ตอนนี้ราว 12.00 น. น้ำท่วมลิฟท์',
-    category: 'การบำรุงรักษา',
-    status: 'แก้ไขเสร็จ',
-    priority: 'สูง',
-    date: '2024-11-21',
-    createdBy: 'ลุงป้า สนิท',
-    contactEmail: 'lung@email.com',
-    contactPhone: '081-567-8901',
-    location: 'อาคาร B ชั้น 8',
-    additionalInfo: 'ได้โทรแจ้งช่างแล้ว จะมาตรวจสอบวันนี้'
-  },
-  {
-    id: 5,
-    title: 'ลิฟท์ติดค้าง ไม่ขึ้นลง',
-    description: 'ลิฟท์อาคาร B ติดค้างที่ชั้น 7 แล้ว 5 นาที ประตูเปิดปิดไม่สนิท เด็กเล็กต้องเดินบันไดขึ้น',
-    category: 'ลิฟท์และบันได',
-    status: 'รอรับเรื่อง',
-    priority: 'เร่งด่วน',
-    date: '2024-11-25',
-    createdBy: 'นายเขียว ดีใจ',
-    contactEmail: 'khiao@email.com',
-    contactPhone: '086-123-4567',
-    location: 'อาคาร B ลิฟท์หลัก',
-    additionalInfo: 'มีผู้สูงอายุติดค้างอยู่ข้างใน ขอช่างด่วน'
-  },
-  {
-    id: 6,
-    title: 'พื้นบริเวณส่วนกลางแตก',
-    description: 'พื้นหินที่ลานเล่นของอาคาร A แตกหัก เป็นอันตรายต่อผู้สัญจร โดยเฉพาะเด็กเล็ก',
-    category: 'ความปลอดภัย',
-    status: 'กำลังดำเนินการ',
-    priority: 'สูง',
-    date: '2024-11-24',
-    createdBy: 'นางสาว จิตตดี',
-    contactEmail: 'jit@email.com',
-    contactPhone: '088-765-4321',
-    location: 'ลานเล่น อาคาร A',
-    additionalInfo: 'มีการติดกล้องวงจร ขอเพิ่ม security เฝ้าดูพื้นที่'
-  },
-  {
-    id: 7,
-    title: 'ความดันน้ำไม่พอ น้ำไหลช้า',
-    description: 'แรงดันน้ำในหลายชั้นไม่เพียงพอ น้ำยังขุ่นอยู่ อาจเป็นปัญหาจากปั๊มน้ำ มีกลิ่นไม่ดี',
-    category: 'ปัญหาน้ำประปา',
-    status: 'แก้ไขเสร็จ',
-    priority: 'ปานกลาง',
-    date: '2024-11-23',
-    createdBy: 'น้องไผ่ เขียวขัน',
-    contactEmail: 'nongpai@email.com',
-    contactPhone: '085-987-6543',
-    location: 'อาคาร C',
-    additionalInfo: 'ได้ติดต่อช่างแล้ว จะมาเช็ครระบบปั๊มน้ำ'
-  },
-  {
-    id: 8,
-    title: 'WiFi ส่วนกลางช้า เชื่อมต่อไม่ได้',
-    description: 'อินเตอร์เน็ต WiFi ในส่วนกลาง ชั้น 8 ช้ามาก ไม่สามารถใช้งานได้ เป็นปัญหาการ Work from Home',
-    category: 'สิ่งแวดล้อม',
-    status: 'รอรับเรื่อง',
-    priority: 'ต่ำ',
-    date: '2024-11-22',
-    createdBy: 'สมพงษ์ ทำงานดี',
-    contactEmail: 'sompong@email.com',
-    contactPhone: '089-234-5678',
-    location: 'ส่วนกลาง ชั้น 8',
-    additionalInfo: 'ต้องใช้อินเตอร์เน็ตสำหรับการทำงาน โทรแจ้งนิติบุคคลแล้ว'
-  },
-  {
-    id: 9,
-    title: 'ไฟที่ลานจอดรถมืด',
-    description: 'ไฟฟ้าที่ลานจอดรถดับหลายดวง เมื่อเย็นมืดมาก ไม่ปลอดภัยสำหรับผู้สัญจร',
-    category: 'ปัญหาไฟฟ้า',
-    status: 'กำลังดำเนินการ',
-    priority: 'ปานกลาง',
-    date: '2024-11-21',
-    createdBy: 'วิชัย รักรถ',
-    contactEmail: 'wichai@email.com',
-    contactPhone: '087-456-7890',
-    location: 'ลานจอดรถยนต์',
-    additionalInfo: 'มีผู้ใช้บริการร้องเรียน ขอให้เร่งแก้ไข'
-  },
-  {
-    id: 10,
-    title: 'ระบบ CCTV ทำงานผิดปกติ',
-    description: 'กล้องวงจรปิดหน้าอาคารเสีย ไม่สามารถบันทึกภาพได้ มีปัญหาความปลอดภัย',
-    category: 'ความปลอดภัย',
-    status: 'รอรับเรื่อง',
-    priority: 'สูง',
-    date: '2024-11-20',
-    createdBy: 'นายศักดิ์ เฝ้าระวัง',
-    contactEmail: 'sak@email.com',
-    contactPhone: '084-321-0987',
-    location: 'หน้าอาคาร A',
-    additionalInfo: 'จำเป็นต้องแก้ไขด่วนเพื่อความปลอดภัย'
-  }
-]
 
 export function ReportsProvider({ children }: ReportsProviderProps) {
   const [reports, setReports] = useState<Report[]>([])
@@ -162,10 +19,44 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
     console.log('Setting up Firebase real-time listener...')
     
     // Subscribe to real-time updates
-    const unsubscribe = reportService.subscribeToReports((updatedReports) => {
+    const unsubscribe = reportService.subscribeToReports(async (updatedReports) => {
       console.log('Received real-time update:', updatedReports.length, 'reports')
-      setReports(updatedReports)
+      
+      // ตั้ง loading เป็น false ทันที
       setLoading(false)
+      
+      // ลบ temp reports และใช้ข้อมูลจริงจาก Firebase
+      setReports(prev => {
+        console.log('Updating reports - Before:', prev.length)
+        console.log('Received from Firebase:', updatedReports.length)
+        
+        // กรองเอา temp reports ออก
+        const nonTempReports = prev.filter(report => !report.id.startsWith('temp-'))
+        console.log('Non-temp reports:', nonTempReports.length)
+        
+        // รวม temp reports กับข้อมูลจริงจาก Firebase
+        const finalReports = [...updatedReports, ...nonTempReports.filter(tempReport => 
+          !updatedReports.find(realReport => 
+            realReport.title === tempReport.title && 
+            realReport.createdBy === tempReport.createdBy
+          )
+        )]
+        
+        console.log('Final reports:', finalReports.length)
+        return finalReports
+      })
+      
+      // ถ้าไม่มีข้อมูล ให้ seed ข้อมูลเริ่มต้นใน background
+      if (updatedReports.length === 0) {
+        console.log('No reports found, seeding initial data in background...')
+        seedInitialData().then((seedSuccess) => {
+          if (seedSuccess) {
+            console.log('Initial data seeded successfully')
+          }
+        }).catch(error => {
+          console.error('Seed data failed:', error)
+        })
+      }
     })
 
     // Cleanup subscription
@@ -182,7 +73,7 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
       
       // สร้าง Report object ใหม่สำหรับ return
       const newReport: Report = {
-        id: parseInt(reportId.slice(-6)), // ใช้ 6 ตัวท้ายเป็น id
+        id: reportId,
         ...reportData,
         date: new Date().toISOString().split('T')[0],
         status: 'รอรับเรื่อง'
@@ -197,22 +88,38 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
   }
 
   // ฟังก์ชันอัปเดตรายงานด้วย Firebase
-  const updateReport = async (id: number, updates: Partial<Report>): Promise<void> => {
+  const updateReport = async (id: string, updates: Partial<Report>): Promise<void> => {
+    // Optimistic update: อัปเดต UI ทันที
+    const previousReports = reports
+    setReports(prev => prev.map(report => 
+      report.id === id ? { ...report, ...updates } : report
+    ))
+    
     try {
-      await reportService.updateReport(id.toString(), updates)
-      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+      await reportService.updateReport(id, updates)
+      // real-time listener จะอัปเดตข้อมูลจริงภายหลัง
     } catch (error: any) {
+      // ถ้า error ให้ rollback กลับสู่สถานะเดิม
+      setReports(previousReports)
       console.error('Error updating report:', error)
       throw new Error(error.message || 'ไม่สามารถอัปเดตรายงานได้')
     }
   }
 
   // ฟังก์ชันอัปเดตสถานะรายงานด้วย Firebase
-  const updateReportStatus = async (id: number, status: ReportStatus): Promise<void> => {
+  const updateReportStatus = async (id: string, status: ReportStatus): Promise<void> => {
+    // Optimistic update: อัปเดตสถานะใน UI ทันที
+    const previousReports = reports
+    setReports(prev => prev.map(report => 
+      report.id === id ? { ...report, status } : report
+    ))
+    
     try {
-      await reportService.updateReportStatus(id.toString(), status)
-      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+      await reportService.updateReportStatus(id, status)
+      // real-time listener จะอัปเดตข้อมูลจริงภายหลัง
     } catch (error: any) {
+      // ถ้า error ให้ rollback กลับสู่สถานะเดิม
+      setReports(previousReports)
       console.error('Error updating report status:', error)
       throw new Error(error.message || 'ไม่สามารถอัปเดตสถานะรายงานได้')
     }
@@ -233,27 +140,53 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
         additionalInfo: reportData.additionalInfo || ''
       }
       
+      // Optimistic update: เพิ่มรายงานใหม่ใน state ทันที
+      const tempReport: Report = {
+        id: 'temp-' + Date.now(), // ID ชั่วคราว
+        ...newReportData,
+        status: 'รอรับเรื่อง',
+        date: new Date().toISOString().split('T')[0]
+      }
+      
+      // เพิ่มใน state ทันทีเพื่อ UI ตอบสนอง
+      setReports(prev => [tempReport, ...prev])
+      
+      // ส่งไป Firebase
       await reportService.createReport(newReportData)
-      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+      
+      // real-time listener จะอัปเดตข้อมูลจริงจาก Firebase ภายหลัง
+      
     } catch (error: any) {
+      // ถ้าเกิด error ให้ลบ temp report ออก
+      setReports(prev => prev.filter(report => !report.id.startsWith('temp-')))
+      
       console.error('Error creating report:', error)
       throw new Error(error.message || 'ไม่สามารถสร้างรายงานได้')
     }
   }
 
   // ฟังก์ชันลบรายงานด้วย Firebase
-  const deleteReport = async (id: number): Promise<void> => {
+  const deleteReport = async (id: string): Promise<void> => {
+    // เก็บข้อมูลเดิมไว้สำหรับ rollback
+    const reportToDelete = reports.find(r => r.id === id)
+    const previousReports = reports
+    
+    // Optimistic update: ลบออกจาก UI ทันที
+    setReports(prev => prev.filter(report => report.id !== id))
+    
     try {
-      await reportService.deleteReport(id.toString())
-      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+      await reportService.deleteReport(id)
+      // real-time listener จะยืนยันการลบภายหลัง
     } catch (error: any) {
+      // ถ้า error ให้เพิ่มรายงานกลับคืน
+      setReports(previousReports)
       console.error('Error deleting report:', error)
       throw new Error(error.message || 'ไม่สามารถลบรายงานได้')
     }
   }
 
   // ฟังก์ชันดึงรายงานตาม ID
-  const getReportById = (id: number): Report | undefined => {
+  const getReportById = (id: string): Report | undefined => {
     return reports.find(report => report.id === id)
   }
 

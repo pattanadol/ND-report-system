@@ -17,7 +17,7 @@ export type ReportStatus = 'รอรับเรื่อง' | 'กำลั�
 export type ReportPriority = 'ต่ำ' | 'ปานกลาง' | 'สูง' | 'เร่งด่วน'
 
 export interface Report {
-  id: number
+  id: string
   title: string
   description: string
   category: string
@@ -61,12 +61,12 @@ export interface AuthContextType {
 // Reports Context types
 export interface ReportsContextType {
   reports: Report[]
-  addReport: (report: Omit<Report, 'id' | 'date'>) => void
-  updateReport: (id: number, updates: Partial<Report>) => void
-  updateReportStatus: (id: number, status: ReportStatus) => void
-  deleteReport: (id: number) => void
+  addReport: (report: Omit<Report, 'id' | 'date'>) => Promise<Report>
+  updateReport: (id: string, updates: Partial<Report>) => Promise<void>
+  updateReportStatus: (id: string, status: ReportStatus) => Promise<void>
+  deleteReport: (id: string) => Promise<void>
   createReport: (reportData: any) => Promise<void>
-  getReportById: (id: number) => Report | undefined
+  getReportById: (id: string) => Report | undefined
   getStats: () => ReportStats
   loading: boolean
 }

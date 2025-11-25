@@ -53,12 +53,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Demo Info */}
-        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6 mb-6">
-          <h3 className="text-sm font-semibold text-indigo-700 mb-3">ข้อมูลทดสอบ:</h3>
-          <p className="text-sm text-indigo-600 font-medium">Email: admin@test.com</p>
-          <p className="text-sm text-indigo-600 font-medium">Password: 123456</p>
-        </div>
 
         {/* Login Form */}
         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-lg">
@@ -142,7 +136,14 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
             >
-              {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+              {loading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>กำลังเข้าสู่ระบบ...</span>
+                </div>
+              ) : (
+                'เข้าสู่ระบบ'
+              )}
             </button>
           </form>
 

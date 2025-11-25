@@ -58,6 +58,7 @@ export default function CreateReportPage() {
   
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const [attachmentPreviews, setAttachmentPreviews] = useState<string[]>([])
 
   // ตรวจสอบการ login
@@ -220,17 +221,35 @@ export default function CreateReportPage() {
       
       await createReport(reportData)
       
-      // แสดงข้อความสำเร็จและ redirect ตาม role
-      alert('แจ้งเรื่องสำเร็จ!')
-      if (user.role === 'admin') {
-        router.push('/dashboard')
-      } else {
-        router.push('/dashboard/user')
-      }
+      // แสดง success state
+      setIsSuccess(true)
+      
+      // รีเซ็ตฟอร์ม
+      setFormData({
+        title: '',
+        description: '',
+        category: '',
+        priority: 'ปานกลาง',
+        contactName: user?.name || '',
+        contactEmail: user?.email || '',
+        contactPhone: '',
+        location: '',
+        attachments: []
+      })
+      setAttachmentPreviews([])
+      
+      // redirect หลังจาก 3 วินาที
+      setTimeout(() => {
+        if (user.role === 'admin') {
+          router.push('/dashboard/reports')
+        } else {
+          router.push('/dashboard/user')
+        }
+      }, 3000)
       
     } catch (error) {
       console.error('Error creating report:', error)
-      alert('เกิดข้อผิดพลาดในการแจ้งเรื่อง')
+      alert('❌ เกิดข้อผิดพลาดในการแจ้งเรื่อง กรุณาลองใหม่อีกครั้ง')
     } finally {
       setIsSubmitting(false)
     }
@@ -239,11 +258,32 @@ export default function CreateReportPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
       <div className="max-w-4xl mx-auto px-4">
+        
+        {/* Success Message */}
+        {isSuccess && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">แจ้งเรื่องสำเร็จ!</h3>
+              <p className="text-gray-600 mb-4">เรื่องแจ้งของคุณได้ถูกส่งเรียบร้อยแล้ว</p>
+              <div className="text-sm text-gray-500">กำลังนำทางไปยังหน้ารายการ...</div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+                <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => router.back()}
             className="flex items-center text-gray-600 hover:text-gray-800 mb-4 group"
+            disabled={isSubmitting || isSuccess}
           >
             <X className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
             กลับ
@@ -548,20 +588,28 @@ export default function CreateReportPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+              disabled={isSubmitting || isSuccess}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ยกเลิก
             </button>
             
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isSuccess}
               className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>กำลังแจ้ง...</span>
+                  <span>กำลังส่งข้อมูล...</span>
+                </>
+              ) : isSuccess ? (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span>ส่งสำเร็จ!</span>
                 </>
               ) : (
                 <>

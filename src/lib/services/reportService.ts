@@ -52,7 +52,7 @@ class ReportService {
       querySnapshot.forEach((doc) => {
         const data = doc.data() as FirestoreReportData
         reports.push({
-          id: parseInt(doc.id), // แปลง string เป็น number สำหรับ compatibility
+          id: doc.id,
           title: data.title,
           description: data.description,
           category: data.category,
@@ -83,7 +83,7 @@ class ReportService {
       if (docSnap.exists()) {
         const data = docSnap.data() as FirestoreReportData
         return {
-          id: parseInt(docSnap.id),
+          id: docSnap.id,
           title: data.title,
           description: data.description,
           category: data.category,
@@ -194,7 +194,7 @@ class ReportService {
       querySnapshot.forEach((doc) => {
         const data = doc.data() as FirestoreReportData
         reports.push({
-          id: parseInt(doc.id),
+          id: doc.id,
           title: data.title,
           description: data.description,
           category: data.category,

@@ -46,7 +46,7 @@ export default function ReportsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
-  const [showActionMenu, setShowActionMenu] = useState<number | null>(null)
+  const [showActionMenu, setShowActionMenu] = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [selectedReport, setSelectedReport] = useState(null)
 
@@ -74,12 +74,12 @@ export default function ReportsPage() {
   }, [showActionMenu])
 
   // Protection against non-admin access
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">กำลังโหลด...</p>
+          <p className="text-slate-600">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
         </div>
       </div>
     )
@@ -108,25 +108,48 @@ export default function ReportsPage() {
     return matchesSearch && matchesStatus && matchesPriority
   })
 
-  const handleStatusChange = async (reportId: number, newStatus: ReportStatus) => {
+  const handleStatusChange = async (reportId: string, newStatus: ReportStatus) => {
     try {
       await updateReportStatus(reportId, newStatus)
       setShowActionMenu(null)
+      
+      // แสดง toast notification (สั้นๆ แทน alert)
+      const successMessages = {
+        'รอรับเรื่อง': '✅ เปลี่ยนสถานะเป็น "รอรับเรื่อง" เรียบร้อย',
+        'กำลังดำเนินการ': '⚙️ เริ่มดำเนินการแก้ไขแล้ว',
+        'แก้ไขเสร็จ': '✨ ดำเนินการเสร็จสมบูรณ์!'
+      }
+      
+      setTimeout(() => {
+        alert(successMessages[newStatus] || '✅ อัปเดตสถานะสำเร็จ')
+      }, 300) // รอให้ UI อัปเดตก่อน
+      
     } catch (error) {
       console.error('Error updating status:', error)
-      alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ')
+      alert('❌ เกิดข้อผิดพลาดในการอัปเดตสถานะ กรุณาลองใหม่')
     }
   }
 
-  const handleDeleteReport = async (reportId: number) => {
-    if (window.confirm('คุณต้องการลบรายงานนี้หรือไม่?')) {
+  const handleDeleteReport = async (reportId: string) => {
+    const reportToDelete = filteredReports.find(r => r.id === reportId)
+    const confirmMessage = `⚠️ ยืนยันการลบรายงาน\n\n` +
+      `หัวข้อ: "${reportToDelete?.title || 'ไม่ทราบชื่อ'}"\n` +
+      `ผู้แจ้ง: ${reportToDelete?.createdBy || 'ไม่ทราบชื่อ'}\n\n` +
+      `หากลบแล้ว จะไม่สามารถกู้คืนได้\n` +
+      `คุณต้องการดำเนินการต่อหรือไม่?`
+    
+    if (window.confirm(confirmMessage)) {
       try {
         await deleteReport(reportId)
         setShowActionMenu(null)
-        alert('ลบรายงานสำเร็จ')
+        
+        setTimeout(() => {
+          alert('✅ ลบรายงานสำเร็จแล้ว!')
+        }, 300)
+        
       } catch (error) {
         console.error('Error deleting report:', error)
-        alert('เกิดข้อผิดพลาดในการลบรายงาน')
+        alert('❌ เกิดข้อผิดพลาดในการลบรายงาน กรุณาลองใหม่')
       }
     }
   }

@@ -31,7 +31,7 @@ export default function ReportDetailPage({ params }: { params: { id: string } })
   const [newComment, setNewComment] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
 
-  const reportId = parseInt(params.id)
+  const reportId = params.id
   const report = reports.find(r => r.id === reportId)
 
   // ตรวจสอบการ login
@@ -101,22 +101,44 @@ export default function ReportDetailPage({ params }: { params: { id: string } })
   const handleStatusChange = async (newStatus: ReportStatus) => {
     try {
       await updateReportStatus(reportId, newStatus)
-      alert('อัปเดตสถานะเรียบร้อย')
+      
+      // แสดง success message
+      const successMessages = {
+        'รอรับเรื่อง': '✅ เปลี่ยนสถานะเป็น "รอรับเรื่อง" เรียบร้อย',
+        'กำลังดำเนินการ': '⚙️ เริ่มดำเนินการแก้ไขแล้ว',
+        'แก้ไขเสร็จ': '✨ ดำเนินการเสร็จสมบูรณ์!'
+      }
+      
+      setTimeout(() => {
+        alert(successMessages[newStatus] || '✅ อัปเดตสถานะเรียบร้อย')
+      }, 300)
+      
     } catch (error) {
       console.error('Error updating status:', error)
-      alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ')
+      alert('❌ เกิดข้อผิดพลาดในการอัปเดตสถานะ กรุณาลองใหม่')
     }
   }
 
   const handleDeleteReport = async () => {
-    if (window.confirm('คุณต้องการลบรายงานนี้หรือไม่?')) {
+    const confirmMessage = `⚠️ ยืนยันการลบรายงาน\n\n` +
+      `หัวข้อ: "${report.title}"\n` +
+      `ผู้แจ้ง: ${report.createdBy}\n\n` +
+      `หากลบแล้ว จะไม่สามารถกู้คืนได้\n` +
+      `คุณต้องการดำเนินการต่อหรือไม่?`
+    
+    if (window.confirm(confirmMessage)) {
       try {
         await deleteReport(reportId)
-        alert('ลบรายงานสำเร็จ')
-        router.push('/dashboard/reports')
+        
+        // ร้อ redirect ให้ optimistic update ทำงานก่อน
+        setTimeout(() => {
+          alert('✅ ลบรายงานสำเร็จแล้ว!')
+          router.push('/dashboard/reports')
+        }, 500)
+        
       } catch (error) {
         console.error('Error deleting report:', error)
-        alert('เกิดข้อผิดพลาดในการลบรายงาน')
+        alert('❌ เกิดข้อผิดพลาดในการลบรายงาน กรุณาลองใหม่')
       }
     }
   }
