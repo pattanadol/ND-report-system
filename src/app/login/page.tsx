@@ -19,13 +19,15 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
+    console.log('Attempting login:', formData.email)
     const result = await login(formData.email, formData.password)
+    console.log('Login result:', result)
     
     if (!result.success) {
       setError(result.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ')
+      setLoading(false)
     }
-    
-    setLoading(false)
+    // ถ้าสำเร็จจะ redirect ไปที่ dashboard อัตโนมัติ
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

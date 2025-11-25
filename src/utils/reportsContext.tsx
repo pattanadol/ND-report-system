@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Report, ReportsContextType, ReportStatus, ReportPriority, ReportStats } from '../types'
+import { reportService } from '../lib/services'
 
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined)
 
@@ -156,73 +157,99 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
 
-  // โหลดข้อมูลรายงานเมื่อเริ่มต้น
+  // โหลดข้อมูลรายงานจาก Firebase และ subscribe to real-time updates
   useEffect(() => {
-    // บังคับใช้ข้อมูลใหม่เสมอ
-    console.log('Loading new reports data...')
-    setReports(initialReports)
-    localStorage.setItem('reports', JSON.stringify(initialReports))
-    setLoading(false)
+    console.log('Setting up Firebase real-time listener...')
+    
+    // Subscribe to real-time updates
+    const unsubscribe = reportService.subscribeToReports((updatedReports) => {
+      console.log('Received real-time update:', updatedReports.length, 'reports')
+      setReports(updatedReports)
+      setLoading(false)
+    })
+
+    // Cleanup subscription
+    return () => {
+      console.log('Cleaning up Firebase listener...')
+      unsubscribe()
+    }
   }, [])
 
-  // ฟังก์ชันสร้างรายงานใหม่
-  const addReport = (reportData: Omit<Report, 'id' | 'date'>): Report => {
-    const newReport: Report = {
-      id: Date.now(),
-      ...reportData,
-      date: new Date().toISOString().split('T')[0],
-      status: 'รอรับเรื่อง'
+  // ฟังก์ชันสร้างรายงานใหม่ด้วย Firebase
+  const addReport = async (reportData: Omit<Report, 'id' | 'date'>): Promise<Report> => {
+    try {
+      const reportId = await reportService.createReport(reportData)
+      
+      // สร้าง Report object ใหม่สำหรับ return
+      const newReport: Report = {
+        id: parseInt(reportId.slice(-6)), // ใช้ 6 ตัวท้ายเป็น id
+        ...reportData,
+        date: new Date().toISOString().split('T')[0],
+        status: 'รอรับเรื่อง'
+      }
+      
+      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+      return newReport
+    } catch (error: any) {
+      console.error('Error adding report:', error)
+      throw new Error(error.message || 'ไม่สามารถสร้างรายงานได้')
     }
-    const updatedReports = [newReport, ...reports]
-    setReports(updatedReports)
-    localStorage.setItem('reports', JSON.stringify(updatedReports))
-    return newReport
   }
 
-  // ฟังก์ชันอัปเดตรายงาน
-  const updateReport = (id: number, updates: Partial<Report>): void => {
-    const updatedReports = reports.map(report =>
-      report.id === id ? { ...report, ...updates } : report
-    )
-    setReports(updatedReports)
-    localStorage.setItem('reports', JSON.stringify(updatedReports))
+  // ฟังก์ชันอัปเดตรายงานด้วย Firebase
+  const updateReport = async (id: number, updates: Partial<Report>): Promise<void> => {
+    try {
+      await reportService.updateReport(id.toString(), updates)
+      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+    } catch (error: any) {
+      console.error('Error updating report:', error)
+      throw new Error(error.message || 'ไม่สามารถอัปเดตรายงานได้')
+    }
   }
 
-  // ฟังก์ชันอัปเดตสถานะรายงาน
-  const updateReportStatus = (id: number, status: ReportStatus): void => {
-    const updatedReports = reports.map(report =>
-      report.id === id ? { ...report, status } : report
-    )
-    setReports(updatedReports)
-    localStorage.setItem('reports', JSON.stringify(updatedReports))
+  // ฟังก์ชันอัปเดตสถานะรายงานด้วย Firebase
+  const updateReportStatus = async (id: number, status: ReportStatus): Promise<void> => {
+    try {
+      await reportService.updateReportStatus(id.toString(), status)
+      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+    } catch (error: any) {
+      console.error('Error updating report status:', error)
+      throw new Error(error.message || 'ไม่สามารถอัปเดตสถานะรายงานได้')
+    }
   }
 
-  // ฟังก์ชันสร้างรายงานใหม่ (สำหรับ create page)
+  // ฟังก์ชันสร้างรายงานใหม่ (สำหรับ create page) ด้วย Firebase
   const createReport = async (reportData: any): Promise<void> => {
-    const newReport: Report = {
-      id: Date.now(),
-      title: reportData.title,
-      description: reportData.description,
-      category: reportData.category,
-      status: 'รอรับเรื่อง' as ReportStatus,
-      priority: reportData.priority as ReportPriority,
-      date: new Date().toISOString().split('T')[0],
-      createdBy: reportData.contactName,
-      contactEmail: reportData.contactEmail,
-      contactPhone: reportData.contactPhone,
-      location: reportData.location,
-      additionalInfo: reportData.additionalInfo || ''
+    try {
+      const newReportData: Omit<Report, 'id' | 'date' | 'status'> = {
+        title: reportData.title,
+        description: reportData.description,
+        category: reportData.category,
+        priority: reportData.priority as ReportPriority,
+        createdBy: reportData.contactName,
+        contactEmail: reportData.contactEmail,
+        contactPhone: reportData.contactPhone,
+        location: reportData.location,
+        additionalInfo: reportData.additionalInfo || ''
+      }
+      
+      await reportService.createReport(newReportData)
+      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+    } catch (error: any) {
+      console.error('Error creating report:', error)
+      throw new Error(error.message || 'ไม่สามารถสร้างรายงานได้')
     }
-    const updatedReports = [newReport, ...reports]
-    setReports(updatedReports)
-    localStorage.setItem('reports', JSON.stringify(updatedReports))
   }
 
-  // ฟังก์ชันลบรายงาน
-  const deleteReport = (id: number): void => {
-    const updatedReports = reports.filter(report => report.id !== id)
-    setReports(updatedReports)
-    localStorage.setItem('reports', JSON.stringify(updatedReports))
+  // ฟังก์ชันลบรายงานด้วย Firebase
+  const deleteReport = async (id: number): Promise<void> => {
+    try {
+      await reportService.deleteReport(id.toString())
+      // ไม่ต้อง update state ที่นี่ เพราะ real-time listener จะจัดการ
+    } catch (error: any) {
+      console.error('Error deleting report:', error)
+      throw new Error(error.message || 'ไม่สามารถลบรายงานได้')
+    }
   }
 
   // ฟังก์ชันดึงรายงานตาม ID

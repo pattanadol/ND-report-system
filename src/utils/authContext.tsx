@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { User, AuthContextType, LoginForm, RegisterForm } from '../types'
+import { authService, type UserProfile } from '../lib/services'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -14,88 +15,107 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // ตรวจสอบการ login เมื่อเริ่มต้น
+  // ตรวจสอบการ login เมื่อเริ่มต้นด้วย Firebase
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
-    if (savedUser) {
-      const userData: User = JSON.parse(savedUser)
-      // อัปเดตชื่อใหม่ถ้าเป็น admin
-      if (userData.email === 'admin@test.com') {
-        userData.name = 'พัฒนดล นิโครธานนท์'
-        localStorage.setItem('user', JSON.stringify(userData))
+    const unsubscribe = authService.onAuthStateChange((userProfile: UserProfile | null) => {
+      if (userProfile) {
+        // แปลง UserProfile เป็น User format เดิม
+        const userData: User = {
+          id: parseInt(userProfile.uid.slice(-6)), // ใช้ 6 ตัวท้ายของ uid เป็น id
+          email: userProfile.email,
+          name: userProfile.name,
+          role: userProfile.isAdmin ? 'admin' : 'user'
+        }
+        setUser(userData)
+      } else {
+        setUser(null)
       }
-      setUser(userData)
-    }
-    setLoading(false)
+      setLoading(false)
+    })
+
+    // Cleanup subscription
+    return () => unsubscribe()
   }, [])
 
-  // ฟังก์ชัน login
+  // ฟังก์ชัน login ด้วย Firebase
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      // จำลองการ login (ในระบบจริงจะเรียก API)
-      if (email === 'admin@test.com' && password === '123456') {
-        const userData: User = {
-          id: 1,
-          email: email,
-          name: 'พัฒนดล นิโครธานนท์',
-          role: 'admin'
-        }
-        setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
-        router.push('/dashboard')
-        return { success: true }
-      } else if (email === 'user@test.com' && password === '123456') {
-        const userData: User = {
-          id: 2,
-          email: email,
-          name: 'ผู้ใช้ทั่วไป',
-          role: 'user'
-        }
-        setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
-        router.push('/dashboard')
-        return { success: true }
-      } else if (email === 'testuser@test.com' && password === '123456') {
-        const userData: User = {
-          id: 3,
-          email: email,
-          name: 'ผู้ใช้ทดสอบ',
-          role: 'user'
-        }
-        setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
-        router.push('/dashboard')
-        return { success: true }
+      console.log('Starting login...', email)
+      const userProfile = await authService.login({ email, password })
+      console.log('Login successful:', userProfile)
+      
+      // แปลง UserProfile เป็น User format เดิม
+      const userData: User = {
+        id: parseInt(userProfile.uid.slice(-6)),
+        email: userProfile.email,
+        name: userProfile.name,
+        role: userProfile.isAdmin ? 'admin' : 'user'
       }
-      return { success: false, error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' }
-    } catch (error) {
+      
+      setUser(userData)
+      
+      // Redirect ตาม role
+      if (userData.role === 'admin') {
+        router.push('/dashboard')  // Admin ไปหน้า dashboard หลัก
+      } else {
+        router.push('/dashboard/user')  // User ไปหน้า user dashboard
+      }
+      
+      return { success: true }
+      
+    } catch (error: any) {
       console.error('Login error:', error)
-      return { success: false, error: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' }
+      // ส่ง error message ที่ชัดเจนกว่า
+      const errorMessage = error.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ'
+      return { success: false, error: errorMessage }
     }
   }
 
   const register = async (userData: { name: string; email: string; password: string }): Promise<{ success: boolean; error?: string }> => {
     try {
+      console.log('Starting registration...', userData.email)
+      const userProfile = await authService.register(userData)
+      console.log('Registration successful:', userProfile)
+      
+      // แปลง UserProfile เป็น User format เดิม
       const newUser: User = {
-        id: Date.now(),
-        email: userData.email,
-        name: userData.name,
-        role: 'user'
+        id: parseInt(userProfile.uid.slice(-6)),
+        email: userProfile.email,
+        name: userProfile.name,
+        role: userProfile.isAdmin ? 'admin' : 'user'
       }
+      
       setUser(newUser)
-      localStorage.setItem('user', JSON.stringify(newUser))
-      router.push('/dashboard')
+      
+      // Redirect ตาม role
+      if (newUser.role === 'admin') {
+        router.push('/dashboard')  // Admin ไปหน้า dashboard หลัก
+      } else {
+        router.push('/dashboard/user')  // User ไปหน้า user dashboard
+      }
+      
       return { success: true }
-    } catch (error) {
-      return { success: false, error: 'เกิดข้อผิดพลาดในการสมัครสมาชิก' }
+      
+    } catch (error: any) {
+      console.error('Register error:', error)
+      // ส่ง error message ที่ชัดเจนกว่า
+      const errorMessage = error.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก'
+      return { success: false, error: errorMessage }
     }
   }
 
-  // ฟังก์ชัน logout
-  const logout = (): void => {
-    setUser(null)
-    localStorage.removeItem('user')
-    router.push('/')
+  // ฟังก์ชัน logout ด้วย Firebase
+  const logout = async (): Promise<void> => {
+    try {
+      await authService.signOut()
+      setUser(null)
+      router.push('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // ถึงแม้จะ error ก็ให้ logout ใน UI
+      setUser(null)
+      router.push('/')
+    }
   }
 
   // เพิ่มฟังก์ชันตรวจสอบสิทธิ์

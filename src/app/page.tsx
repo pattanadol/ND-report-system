@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { FileText, Clock, Shield, Zap, Upload, BarChart } from 'lucide-react'
 
+// Note: Setup is hidden from UI for security
+// Admin setup access: /setup (direct URL only)
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">

@@ -42,13 +42,15 @@ export default function RegisterPage() {
       return
     }
 
+    console.log('Submitting registration:', formData.email)
     const result = await register(formData)
+    console.log('Registration result:', result)
     
     if (!result.success) {
       setError(result.error || 'เกิดข้อผิดพลาดในการสมัครสมาชิก')
+      setLoading(false)
     }
-    
-    setLoading(false)
+    // ถ้าสำเร็จจะ redirect ไปที่ dashboard อัตโนมัติ
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
