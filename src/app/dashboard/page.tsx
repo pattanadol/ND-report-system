@@ -86,9 +86,9 @@ export default function DashboardPage() {
                 คุณมีเรื่องแจ้งทั้งหมด <span className="font-semibold text-indigo-600">{stats.total} เรื่อง</span> ที่จัดการในระบบ
               </p>
             </div>
-            <div className="text-right bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-              <div className="text-sm font-medium text-slate-600">วันที่</div>
-              <div className="text-lg font-bold text-slate-800">{formatDate(new Date())}</div>
+            <div className="card-compact bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200 text-center sm:text-right">
+              <div className="text-xs sm:text-sm font-medium text-slate-600 mb-1">วันที่</div>
+              <div className="text-sm sm:text-lg font-bold text-slate-800">{formatDate(new Date())}</div>
             </div>
           </div>
         </div>

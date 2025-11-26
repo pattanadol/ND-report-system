@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Report, ReportsContextType, ReportStatus, ReportPriority, ReportStats } from '../types'
 import { reportService } from '../lib/services'
 import { seedInitialData } from '../lib/services/seedData'
+import { useAuth } from './authContext'
 
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined)
 
@@ -13,6 +14,7 @@ interface ReportsProviderProps {
 export function ReportsProvider({ children }: ReportsProviderProps) {
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
 
   // โหลดข้อมูลรายงานจาก Firebase และ subscribe to real-time updates
   useEffect(() => {
@@ -64,7 +66,7 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
       console.log('Cleaning up Firebase listener...')
       unsubscribe()
     }
-  }, [])
+  }, [user]) // Re-subscribe when user changes
 
   // ฟังก์ชันสร้างรายงานใหม่ด้วย Firebase
   const addReport = async (reportData: Omit<Report, 'id' | 'date'>): Promise<Report> => {

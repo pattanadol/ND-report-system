@@ -45,33 +45,21 @@ export default function UserDashboardPage() {
 
   // กรองรายงานของ user เฉพาะคนนี้
   useEffect(() => {
-    if (user) {
-      // ตั้งค่าเริ่มต้นเพื่อไม่ให้ loading นาน
-      setUserReports([])
-      setStats({
-        total: 0,
-        pending: 0,
-        inProgress: 0,
-        completed: 0,
-        urgent: 0
-      })
-      
-      if (reports && reports.length > 0) {
-        const filteredReports = reports.filter(report => 
-          report.createdBy === user.name || report.contactEmail === user.email
-        )
-        setUserReports(filteredReports)
+    if (user && reports) {
+      const filteredReports = reports.filter(report => 
+        report.createdBy === user.name || report.contactEmail === user.email
+      )
+      setUserReports(filteredReports)
 
-        // คำนวณสถิติ
-        const newStats = {
-          total: filteredReports.length,
-          pending: filteredReports.filter(r => r.status === 'รอรับเรื่อง').length,
-          inProgress: filteredReports.filter(r => r.status === 'กำลังดำเนินการ').length,
-          completed: filteredReports.filter(r => r.status === 'แก้ไขเสร็จ').length,
-          urgent: filteredReports.filter(r => r.priority === 'เร่งด่วน').length
-        }
-        setStats(newStats)
+      // คำนวณสถิติ
+      const newStats = {
+        total: filteredReports.length,
+        pending: filteredReports.filter(r => r.status === 'รอรับเรื่อง').length,
+        inProgress: filteredReports.filter(r => r.status === 'กำลังดำเนินการ').length,
+        completed: filteredReports.filter(r => r.status === 'แก้ไขเสร็จ').length,
+        urgent: filteredReports.filter(r => r.priority === 'เร่งด่วน').length
       }
+      setStats(newStats)
     }
   }, [user, reports])
 

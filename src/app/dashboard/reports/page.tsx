@@ -113,6 +113,12 @@ export default function ReportsPage() {
     console.log('🔄 Reports Page: Status change requested:', { reportId, newStatus })
     console.log('👤 Current user:', { user, isAdmin })
     
+    // ตรวจสอบสิทธิ์ admin
+    if (!isAdmin) {
+      alert('❌ เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเปลี่ยนสถานะได้')
+      return
+    }
+    
     try {
       await updateReportStatus(reportId, newStatus)
       setShowActionMenu(null)
@@ -138,6 +144,12 @@ export default function ReportsPage() {
   }
 
   const handleDeleteReport = async (reportId: string) => {
+    // ตรวจสอบสิทธิ์ admin
+    if (!isAdmin) {
+      alert('❌ เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถลบรายงานได้')
+      return
+    }
+    
     const reportToDelete = filteredReports.find(r => r.id === reportId)
     const confirmMessage = `⚠️ ยืนยันการลบรายงาน\n\n` +
       `หัวข้อ: "${reportToDelete?.title || 'ไม่ทราบชื่อ'}"\n` +
@@ -368,12 +380,14 @@ export default function ReportsPage() {
                             <span>ดูรายละเอียด</span>
                           </Link>
                           
-                          <div className="border-t border-gray-100 my-1"></div>
-                          <div className="px-2 py-1">
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">เปลี่ยนสถานะ</p>
-                          </div>
-                          
-                          <button
+                          {isAdmin && (
+                            <>
+                              <div className="border-t border-gray-100 my-1"></div>
+                              <div className="px-2 py-1">
+                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">เปลี่ยนสถานะ</p>
+                              </div>
+                              
+                              <button
                             onClick={() => handleStatusChange(report.id, 'รอรับเรื่อง')}
                             className={`flex items-center space-x-2 w-full px-4 py-2 text-sm transition-colors ${
                               report.status === 'รอรับเรื่อง' 
@@ -411,15 +425,19 @@ export default function ReportsPage() {
                             <CheckCircle className="w-4 h-4" />
                             <span>แก้ไขเสร็จ</span>
                           </button>
+                            </>
+                          )}
                           
                           <div className="border-t border-gray-100 my-1"></div>
-                          <button
-                            onClick={() => handleDeleteReport(report.id)}
-                            className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>ลบเรื่องแจ้ง</span>
-                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleDeleteReport(report.id)}
+                              className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              <span>ลบเรื่องแจ้ง</span>
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>

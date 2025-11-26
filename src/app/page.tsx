@@ -81,7 +81,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-lg text-center hover:shadow-xl transition-all duration-300">
               <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-2xl font-bold">
-                A
+                ซินเทียร์
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">ภูมิภูมินทร์ ธนภคินธยาน์</h3>
               <p className="text-indigo-600 font-semibold mb-3">ผู้จัดการโครงการ</p>
@@ -90,7 +90,7 @@ export default function HomePage() {
             
             <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-lg text-center hover:shadow-xl transition-all duration-300">
               <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-2xl font-bold">
-                ส
+                อ้ายโด่ง
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">พัฒนดล นิโครธานนท์</h3>
               <p className="text-emerald-600 font-semibold mb-3">นักพัฒนาระบบ</p>
@@ -99,7 +99,7 @@ export default function HomePage() {
             
             <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-lg text-center hover:shadow-xl transition-all duration-300">
               <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-2xl font-bold">
-                น
+                มดแดง
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">ภัทรวดี นวลตา</h3>
               <p className="text-amber-600 font-semibold mb-3">นักออกแบบ UI/UX</p>
