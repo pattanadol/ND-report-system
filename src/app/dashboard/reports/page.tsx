@@ -120,10 +120,11 @@ export default function ReportsPage() {
       console.log('✅ Reports Page: Status updated successfully')
       
       // แสดง toast notification (สั้นๆ แทน alert)
-      const successMessages = {
+      const successMessages: Record<ReportStatus, string> = {
         'รอรับเรื่อง': '✅ เปลี่ยนสถานะเป็น "รอรับเรื่อง" เรียบร้อย',
         'กำลังดำเนินการ': '⚙️ เริ่มดำเนินการแก้ไขแล้ว',
-        'แก้ไขเสร็จ': '✨ ดำเนินการเสร็จสมบูรณ์!'
+        'แก้ไขเสร็จ': '✨ ดำเนินการเสร็จสมบูรณ์!',
+        'รอตรวจสอบ': '🔍 ส่งให้ตรวจสอบเรียบร้อย'
       }
       
       setTimeout(() => {
@@ -212,7 +213,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* Search and Filters - Mobile optimized */}}
+        {/* Search and Filters - Mobile optimized */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             {/* Search */}
