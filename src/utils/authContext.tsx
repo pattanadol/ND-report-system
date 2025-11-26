@@ -28,7 +28,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // แปลง UserProfile เป็น User format เดิม
         const userData: User = {
-          id: parseInt(userProfile.uid.slice(-6)), // ใช้ 6 ตัวท้ายของ uid เป็น id
+          id: userProfile.uid, // ใช้ uid โดยตรง
           email: userProfile.email,
           name: userProfile.name,
           role: userProfile.isAdmin ? 'admin' : 'user'
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // แปลง UserProfile เป็น User format เดิม
       const userData: User = {
-        id: parseInt(userProfile.uid.slice(-6)),
+        id: userProfile.uid,
         email: userProfile.email,
         name: userProfile.name,
         role: userProfile.isAdmin ? 'admin' : 'user'
@@ -87,9 +87,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const userProfile = await authService.register(userData)
       console.log('Registration successful:', userProfile)
       
-      // แปลง UserProfile เป็น User format เดิม
+      // แปลง UserProfile เป็น User format
       const newUser: User = {
-        id: parseInt(userProfile.uid.slice(-6)),
+        id: userProfile.uid,
         email: userProfile.email,
         name: userProfile.name,
         role: userProfile.isAdmin ? 'admin' : 'user'

@@ -15,7 +15,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
-import type { CreateReportForm } from '../../../types'
+import { uploadImages } from '../../../utils/imageUtils'
+import type { CreateReportForm, Attachment } from '../../../types'
 
 interface FormErrors {
   [key: string]: string
@@ -208,15 +209,26 @@ export default function CreateReportPage() {
     setIsSubmitting(true)
     
     try {
+      // อัปโหลดไฟล์แนบไปยัง server (ถ้ามี)
+      let uploadedAttachments: Attachment[] = []
+      if (formData.attachments.length > 0) {
+        try {
+          uploadedAttachments = await uploadImages(Array.from(formData.attachments))
+        } catch (uploadError) {
+          console.error('Upload error:', uploadError)
+          setErrors(prev => ({
+            ...prev,
+            attachments: 'ไม่สามารถอัปโหลดไฟล์ได้ กรุณาลองใหม่'
+          }))
+          setIsSubmitting(false)
+          return
+        }
+      }
+
       // แจ้งเรื่อง
       const reportData = {
         ...formData,
-        attachments: Array.from(formData.attachments).map(file => ({
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          url: URL.createObjectURL(file) // ในการใช้งานจริงควรอัปโหลดไปยัง server
-        }))
+        attachments: uploadedAttachments
       }
       
       await createReport(reportData)

@@ -2,7 +2,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Report, ReportsContextType, ReportStatus, ReportPriority, ReportStats } from '../types'
 import { reportService } from '../lib/services'
-import { seedInitialData } from '../lib/services/seedData'
 import { useAuth } from './authContext'
 
 const ReportsContext = createContext<ReportsContextType | undefined>(undefined)
@@ -47,18 +46,6 @@ export function ReportsProvider({ children }: ReportsProviderProps) {
         console.log('Final reports:', finalReports.length)
         return finalReports
       })
-      
-      // ถ้าไม่มีข้อมูล ให้ seed ข้อมูลเริ่มต้นใน background
-      if (updatedReports.length === 0) {
-        console.log('No reports found, seeding initial data in background...')
-        seedInitialData().then((seedSuccess) => {
-          if (seedSuccess) {
-            console.log('Initial data seeded successfully')
-          }
-        }).catch(error => {
-          console.error('Seed data failed:', error)
-        })
-      }
     })
 
     // Cleanup subscription

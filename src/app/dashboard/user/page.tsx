@@ -12,7 +12,9 @@ import {
   User,
   BarChart3,
   Trash2,
-  Paperclip
+  Paperclip,
+  MoreVertical,
+  Eye
 } from 'lucide-react'
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
@@ -32,6 +34,7 @@ export default function UserDashboardPage() {
     completed: 0,
     urgent: 0
   })
+  const [showActionMenu, setShowActionMenu] = useState<string | null>(null)
 
   // ตรวจสอบการ login และสิทธิ์
   useEffect(() => {
@@ -62,6 +65,20 @@ export default function UserDashboardPage() {
       setStats(newStats)
     }
   }, [user, reports])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showActionMenu && event.target && !(event.target as Element).closest('.action-menu-container')) {
+        setShowActionMenu(null)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showActionMenu])
 
   if (authLoading) {
     return (
@@ -202,21 +219,6 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        {/* Quick Action */}
-        <div className="mb-6 sm:mb-8 max-w-4xl mx-auto">
-          <Link href="/dashboard/create" className="group card hover:shadow-lg transition-all duration-300 block">
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                <Plus className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">แจ้งปัญหาใหม่</h3>
-                <p className="text-gray-600 text-sm sm:text-lg">แจ้งปัญหาหรือข้อร้องเรียนใหม่ในหมู่บ้าน/คอนโด</p>
-              </div>
-            </div>
-          </Link>
-        </div>
-
         {/* My Reports */}
         <div className="card-compact">
           <div className="p-4 sm:p-6 border-b border-gray-200">
@@ -280,20 +282,45 @@ export default function UserDashboardPage() {
                               <div className="w-1.5 h-1.5 rounded-full bg-current"></div>
                               <span>{report.status}</span>
                             </span>
-                            
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault()
-                                handleDeleteReport(report.id, report.title)
-                              }}
-                              className="touch-target text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200 group w-fit"
-                              title="ลบรายงาน"
-                            >
-                              <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            </button>
                           </div>
                         </div>
                       </div>
+                    </div>
+                    
+                    {/* Action Menu */}
+                    <div className="flex-shrink-0 relative action-menu-container">
+                      <button
+                        onClick={() => setShowActionMenu(showActionMenu === report.id ? null : report.id)}
+                        className="p-2 sm:p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                      
+                      {showActionMenu === report.id && (
+                        <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-40">
+                          <Link
+                            href={`/dashboard/reports/${report.id}`}
+                            className="flex items-center space-x-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setShowActionMenu(null)}
+                          >
+                            <Eye className="w-4 h-4" />
+                            <span>ดูรายละเอียด</span>
+                          </Link>
+                          
+                          <div className="border-t border-gray-100 my-1"></div>
+                          
+                          <button
+                            onClick={() => {
+                              setShowActionMenu(null)
+                              handleDeleteReport(report.id, report.title)
+                            }}
+                            className="flex items-center space-x-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>ลบเรื่องแจ้ง</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

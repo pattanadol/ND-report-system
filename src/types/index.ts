@@ -2,7 +2,7 @@
 
 // User types
 export interface User {
-  id: number
+  id: string  // Firebase UID
   name: string
   email: string
   role: 'admin' | 'user'
@@ -23,6 +23,22 @@ export interface Attachment {
   url: string
 }
 
+// ข้อมูลการดำเนินการ (สำหรับสถานะ "กำลังดำเนินการ")
+export interface ProcessingInfo {
+  assignedTo: string           // มอบหมายให้ใคร
+  estimatedTime: string        // เวลาดำเนินการโดยประมาณ
+  details: string              // รายละเอียด (ต้องแก้ไขอะไรบ้าง)
+  startedAt?: string           // วันที่เริ่มดำเนินการ
+}
+
+// ข้อมูลเมื่อแก้ไขเสร็จ (สำหรับสถานะ "แก้ไขเสร็จ")
+export interface CompletionInfo {
+  assignedTo: string           // ผู้ที่ดำเนินการ (ดึงจาก ProcessingInfo)
+  completionDetails: string    // รายละเอียดการแก้ไข
+  completedAt?: string         // วันที่เสร็จสิ้น
+  evidenceImages?: Attachment[] // รูปภาพหลักฐาน
+}
+
 export interface Report {
   id: string
   title: string
@@ -37,6 +53,8 @@ export interface Report {
   location: string
   additionalInfo?: string
   attachments?: Attachment[]
+  processingInfo?: ProcessingInfo    // ข้อมูลการดำเนินการ
+  completionInfo?: CompletionInfo    // ข้อมูลเมื่อเสร็จสิ้น
 }
 
 export interface Comment {

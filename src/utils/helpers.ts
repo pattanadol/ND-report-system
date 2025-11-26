@@ -1,8 +1,5 @@
 // Helper functions สำหรับ formatting และ utilities
-
-// Types for report status and priority
-export type ReportStatus = 'รอรับเรื่อง' | 'กำลังดำเนินการ' | 'แก้ไขเสร็จ' | 'รอตรวจสอบ';
-export type ReportPriority = 'ต่ำ' | 'ปานกลาง' | 'สูง' | 'เร่งด่วน';
+import type { ReportStatus, ReportPriority } from '../types'
 
 export const formatDate = (date: Date | string | null | undefined): string => {
   if (!date) return '-'

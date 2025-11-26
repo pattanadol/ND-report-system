@@ -13,7 +13,7 @@ import {
   onSnapshot
 } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
-import type { Report, ReportStatus, ReportPriority, Attachment } from '../../types'
+import type { Report, ReportStatus, ReportPriority, Attachment, ProcessingInfo, CompletionInfo } from '../../types'
 
 const REPORTS_COLLECTION = 'reports'
 
@@ -30,6 +30,8 @@ interface FirestoreReportData {
   location: string
   additionalInfo?: string
   attachments?: Attachment[]
+  processingInfo?: ProcessingInfo
+  completionInfo?: CompletionInfo
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -65,7 +67,9 @@ class ReportService {
           contactPhone: data.contactPhone,
           location: data.location,
           additionalInfo: data.additionalInfo || '',
-          attachments: data.attachments || []
+          attachments: data.attachments || [],
+          processingInfo: data.processingInfo,
+          completionInfo: data.completionInfo
         })
       })
       
@@ -97,7 +101,9 @@ class ReportService {
           contactPhone: data.contactPhone,
           location: data.location,
           additionalInfo: data.additionalInfo || '',
-          attachments: data.attachments || []
+          attachments: data.attachments || [],
+          processingInfo: data.processingInfo,
+          completionInfo: data.completionInfo
         }
       }
       
@@ -177,11 +183,14 @@ class ReportService {
       if (updates.title) updateData.title = updates.title
       if (updates.description) updateData.description = updates.description
       if (updates.category) updateData.category = updates.category
+      if (updates.status) updateData.status = updates.status
       if (updates.priority) updateData.priority = updates.priority
       if (updates.location) updateData.location = updates.location
       if (updates.contactEmail) updateData.contactEmail = updates.contactEmail
       if (updates.contactPhone) updateData.contactPhone = updates.contactPhone
       if (updates.additionalInfo !== undefined) updateData.additionalInfo = updates.additionalInfo
+      if (updates.processingInfo !== undefined) updateData.processingInfo = updates.processingInfo
+      if (updates.completionInfo !== undefined) updateData.completionInfo = updates.completionInfo
       
       await updateDoc(docRef, updateData)
     } catch (error) {
@@ -225,7 +234,9 @@ class ReportService {
           contactPhone: data.contactPhone,
           location: data.location,
           additionalInfo: data.additionalInfo || '',
-          attachments: data.attachments || []
+          attachments: data.attachments || [],
+          processingInfo: data.processingInfo,
+          completionInfo: data.completionInfo
         })
       })
       callback(reports)

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { 
@@ -17,12 +17,17 @@ import {
   Edit,
   Trash2,
   Shield,
-  Paperclip
+  Paperclip,
+  X,
+  Upload,
+  Save,
+  Wrench
 } from 'lucide-react'
 import { useAuth } from '../../../utils/authContext'
 import { useReports } from '../../../utils/reportsContext'
 import { formatDate, getStatusColor, getPriorityColor, truncateText } from '../../../utils/helpers'
-import type { ReportStatus } from '../../../types'
+import { uploadImages } from '../../../utils/imageUtils'
+import type { ReportStatus, Report, ProcessingInfo, CompletionInfo, Attachment } from '../../../types'
 
 const statusOptions = [
   { value: '', label: 'ทุกสถานะ' },
@@ -41,7 +46,7 @@ const priorityOptions = [
 
 export default function ReportsPage() {
   const { user, isAdmin, loading: authLoading } = useAuth()
-  const { reports, updateReportStatus, deleteReport, loading } = useReports()
+  const { reports, updateReportStatus, updateReport, deleteReport, loading } = useReports()
   const router = useRouter()
   
   const [searchTerm, setSearchTerm] = useState('')
@@ -49,7 +54,30 @@ export default function ReportsPage() {
   const [priorityFilter, setPriorityFilter] = useState('')
   const [showActionMenu, setShowActionMenu] = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
-  const [selectedReport, setSelectedReport] = useState(null)
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+  
+  // Modal states
+  const [showProcessingModal, setShowProcessingModal] = useState(false)
+  const [showCompletionModal, setShowCompletionModal] = useState(false)
+  const [currentReportId, setCurrentReportId] = useState<string | null>(null)
+  
+  // Processing form state
+  const [processingForm, setProcessingForm] = useState<ProcessingInfo>({
+    assignedTo: '',
+    estimatedTime: '',
+    details: ''
+  })
+  
+  // Completion form state
+  const [completionForm, setCompletionForm] = useState<CompletionInfo>({
+    assignedTo: '',
+    completionDetails: '',
+    evidenceImages: []
+  })
+  
+  // Evidence images state
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([])
+  const [evidencePreviews, setEvidencePreviews] = useState<string[]>([])
 
   // ตรวจสอบการ login และสิทธิ์
   useEffect(() => {
@@ -109,6 +137,182 @@ export default function ReportsPage() {
     return matchesSearch && matchesStatus && matchesPriority
   })
 
+  // Handle processing form input change
+  const handleProcessingChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setProcessingForm(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  // Handle completion form input change
+  const handleCompletionChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setCompletionForm(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  // Handle evidence file selection
+  const handleEvidenceFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    const maxFiles = 5
+    const maxSize = 10 * 1024 * 1024 // 10MB
+    
+    if (files.length > maxFiles) {
+      alert(`สามารถอัปโหลดได้สูงสุด ${maxFiles} ไฟล์`)
+      return
+    }
+    
+    const oversizedFiles = files.filter(file => file.size > maxSize)
+    if (oversizedFiles.length > 0) {
+      alert('ไฟล์มีขนาดใหญ่เกิน 10MB')
+      return
+    }
+    
+    setEvidenceFiles(files)
+    
+    // สร้าง preview
+    const previews = files.map(file => {
+      if (file.type.startsWith('image/')) {
+        return URL.createObjectURL(file)
+      }
+      return null
+    }).filter(Boolean) as string[]
+    setEvidencePreviews(previews)
+  }
+
+  // Remove evidence file
+  const removeEvidenceFile = (index: number) => {
+    const newFiles = evidenceFiles.filter((_, i) => i !== index)
+    setEvidenceFiles(newFiles)
+    
+    const newPreviews = evidencePreviews.filter((_, i) => i !== index)
+    setEvidencePreviews(newPreviews)
+  }
+
+  // Open processing modal
+  const openProcessingModal = (reportId: string) => {
+    const report = reports.find(r => r.id === reportId)
+    setCurrentReportId(reportId)
+    if (report?.processingInfo) {
+      setProcessingForm(report.processingInfo)
+    } else {
+      setProcessingForm({
+        assignedTo: '',
+        estimatedTime: '',
+        details: ''
+      })
+    }
+    setShowActionMenu(null)
+    setShowProcessingModal(true)
+  }
+
+  // Open completion modal
+  const openCompletionModal = (reportId: string) => {
+    const report = reports.find(r => r.id === reportId)
+    setCurrentReportId(reportId)
+    if (report?.completionInfo) {
+      setCompletionForm(report.completionInfo)
+    } else {
+      // ดึงข้อมูลจาก processing info มาใส่
+      setCompletionForm({
+        assignedTo: report?.processingInfo?.assignedTo || '',
+        completionDetails: '',
+        evidenceImages: []
+      })
+    }
+    setEvidenceFiles([])
+    setEvidencePreviews([])
+    setShowActionMenu(null)
+    setShowCompletionModal(true)
+  }
+
+  // Submit processing info
+  const handleSubmitProcessing = async () => {
+    if (!currentReportId) return
+    
+    if (!processingForm.assignedTo.trim()) {
+      alert('กรุณากรอกชื่อผู้รับผิดชอบ')
+      return
+    }
+    if (!processingForm.estimatedTime.trim()) {
+      alert('กรุณากรอกเวลาดำเนินการโดยประมาณ')
+      return
+    }
+    if (!processingForm.details.trim()) {
+      alert('กรุณากรอกรายละเอียด')
+      return
+    }
+
+    try {
+      const report = reports.find(r => r.id === currentReportId)
+      const updatedProcessingInfo: ProcessingInfo = {
+        ...processingForm,
+        startedAt: report?.processingInfo?.startedAt || new Date().toISOString()
+      }
+      
+      await updateReport(currentReportId, { 
+        processingInfo: updatedProcessingInfo,
+        status: 'กำลังดำเนินการ'
+      })
+      
+      setShowProcessingModal(false)
+      setCurrentReportId(null)
+      alert('⚙️ เริ่มดำเนินการแก้ไขแล้ว')
+    } catch (error) {
+      console.error('Error:', error)
+      alert('❌ เกิดข้อผิดพลาด กรุณาลองใหม่')
+    }
+  }
+
+  // Submit completion info
+  const handleSubmitCompletion = async () => {
+    if (!currentReportId) return
+    
+    if (!completionForm.completionDetails.trim()) {
+      alert('กรุณากรอกรายละเอียดการแก้ไข')
+      return
+    }
+
+    try {
+      // อัปโหลดรูปภาพหลักฐานไปยัง Server
+      let evidenceAttachments: Attachment[] = []
+      if (evidenceFiles.length > 0) {
+        try {
+          evidenceAttachments = await uploadImages(evidenceFiles)
+        } catch (uploadError) {
+          console.error('Upload error:', uploadError)
+          alert('❌ เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ')
+          return
+        }
+      }
+
+      const report = reports.find(r => r.id === currentReportId)
+      const updatedCompletionInfo: CompletionInfo = {
+        ...completionForm,
+        completedAt: report?.completionInfo?.completedAt || new Date().toISOString(),
+        evidenceImages: [...(completionForm.evidenceImages || []), ...evidenceAttachments]
+      }
+      
+      await updateReport(currentReportId, { 
+        completionInfo: updatedCompletionInfo,
+        status: 'แก้ไขเสร็จ'
+      })
+      
+      setShowCompletionModal(false)
+      setCurrentReportId(null)
+      setEvidenceFiles([])
+      setEvidencePreviews([])
+      alert('✨ ดำเนินการเสร็จสมบูรณ์!')
+    } catch (error) {
+      console.error('Error:', error)
+      alert('❌ เกิดข้อผิดพลาด กรุณาลองใหม่')
+    }
+  }
+
   const handleStatusChange = async (reportId: string, newStatus: ReportStatus) => {
     console.log('🔄 Reports Page: Status change requested:', { reportId, newStatus })
     console.log('👤 Current user:', { user, isAdmin })
@@ -116,6 +320,18 @@ export default function ReportsPage() {
     // ตรวจสอบสิทธิ์ admin
     if (!isAdmin) {
       alert('❌ เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเปลี่ยนสถานะได้')
+      return
+    }
+
+    // ถ้าเปลี่ยนเป็น "กำลังดำเนินการ" ต้องกรอกข้อมูล
+    if (newStatus === 'กำลังดำเนินการ') {
+      openProcessingModal(reportId)
+      return
+    }
+
+    // ถ้าเปลี่ยนเป็น "แก้ไขเสร็จ" ต้องกรอกข้อมูล
+    if (newStatus === 'แก้ไขเสร็จ') {
+      openCompletionModal(reportId)
       return
     }
     
@@ -206,6 +422,215 @@ export default function ReportsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Processing Modal */}
+        {showProcessingModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Wrench className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">กำลังดำเนินการ</h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowProcessingModal(false)
+                    setCurrentReportId(null)
+                  }}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    มอบหมายให้ <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="assignedTo"
+                    value={processingForm.assignedTo}
+                    onChange={handleProcessingChange}
+                    placeholder="ชื่อผู้รับผิดชอบ"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    เวลาดำเนินการโดยประมาณ <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="estimatedTime"
+                    value={processingForm.estimatedTime}
+                    onChange={handleProcessingChange}
+                    placeholder="เช่น 2-3 วัน, 1 สัปดาห์"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    รายละเอียด (ต้องแก้ไขอะไรบ้าง) <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="details"
+                    value={processingForm.details}
+                    onChange={handleProcessingChange}
+                    rows={4}
+                    placeholder="อธิบายว่าจะดำเนินการแก้ไขอะไรบ้าง..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowProcessingModal(false)
+                    setCurrentReportId(null)
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={handleSubmitProcessing}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>เริ่มดำเนินการ</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Completion Modal */}
+        {showCompletionModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">แก้ไขเสร็จ</h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowCompletionModal(false)
+                    setCurrentReportId(null)
+                  }}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ผู้ดำเนินการ
+                  </label>
+                  <input
+                    type="text"
+                    name="assignedTo"
+                    value={completionForm.assignedTo}
+                    onChange={handleCompletionChange}
+                    placeholder="ชื่อผู้ดำเนินการ"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600"
+                    readOnly={!!reports.find(r => r.id === currentReportId)?.processingInfo?.assignedTo}
+                  />
+                  {reports.find(r => r.id === currentReportId)?.processingInfo?.assignedTo && (
+                    <p className="text-xs text-gray-500 mt-1">* ดึงข้อมูลจากการมอบหมายงาน</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    รายละเอียดการแก้ไข <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="completionDetails"
+                    value={completionForm.completionDetails}
+                    onChange={handleCompletionChange}
+                    rows={4}
+                    placeholder="อธิบายว่าได้ดำเนินการแก้ไขอะไรไปบ้าง..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    รูปภาพหลักฐาน (ถ้ามี)
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-400 transition-colors">
+                    <input
+                      type="file"
+                      id="evidenceImagesModal"
+                      multiple
+                      onChange={handleEvidenceFileChange}
+                      className="hidden"
+                      accept="image/*"
+                    />
+                    <label htmlFor="evidenceImagesModal" className="cursor-pointer block">
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-gray-700">คลิกเพื่อเลือกรูปภาพ</p>
+                      <p className="text-xs text-gray-400 mt-1">สูงสุด 5 รูป, ไม่เกิน 10MB ต่อรูป</p>
+                    </label>
+                  </div>
+                  
+                  {/* Preview evidence files */}
+                  {evidencePreviews.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2 mt-3">
+                      {evidencePreviews.map((preview, index) => (
+                        <div key={index} className="relative">
+                          <img 
+                            src={preview} 
+                            alt={`Evidence ${index + 1}`}
+                            className="w-full h-20 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeEvidenceFile(index)}
+                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowCompletionModal(false)
+                    setCurrentReportId(null)
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={handleSubmitCompletion}
+                  className="flex-1 px-4 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>แก้ไขเสร็จ</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header - Mobile optimized */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-4 sm:space-y-0">
