@@ -965,11 +965,11 @@ export default function ReportDetailPage({ params }: { params: { id: string } })
                 
                 {report.contactEmail && (
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <Mail className="w-5 h-5 text-green-600" />
                     </div>
-                    <div className="flex-1">
-                      <a href={`mailto:${report.contactEmail}`} className="font-medium text-green-600 hover:text-green-800">
+                    <div className="flex-1 min-w-0">
+                      <a href={`mailto:${report.contactEmail}`} className="font-medium text-green-600 hover:text-green-800 block truncate">
                         {report.contactEmail}
                       </a>
                       <p className="text-sm text-gray-500">อีเมล</p>
@@ -979,11 +979,11 @@ export default function ReportDetailPage({ params }: { params: { id: string } })
                 
                 {report.contactPhone && (
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <Phone className="w-5 h-5 text-blue-600" />
                     </div>
-                    <div className="flex-1">
-                      <a href={`tel:${report.contactPhone}`} className="font-medium text-blue-600 hover:text-blue-800">
+                    <div className="flex-1 min-w-0">
+                      <a href={`tel:${report.contactPhone}`} className="font-medium text-blue-600 hover:text-blue-800 block truncate">
                         {report.contactPhone}
                       </a>
                       <p className="text-sm text-gray-500">เบอร์โทรศัพท์</p>

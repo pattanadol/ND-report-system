@@ -8,7 +8,7 @@ import { Metadata } from 'next'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'ND Report System - ระบบแจ้งเรื่องออนไลน์',
+  title: 'ND Report System - ระบบแจ้งปัญหาภายในชุมชนออนไลน์',
   description: 'ระบบสำหรับแจ้งเรื่อง แจ้งปัญหา และจัดการงานขององค์กร',
 }
 

@@ -70,7 +70,7 @@ export default function DashboardPage() {
   }
 
   const stats = getStats()
-  const recentReports = reports.slice(0, 3) // แสดง 3 รายการล่าสุด
+  const recentReports = reports.slice(0, 3) 
 
   return (
     <div className="bg-slate-50 min-h-screen">

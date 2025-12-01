@@ -525,7 +525,7 @@ export default function CreateReportPage() {
             </h2>
             
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 hover:border-blue-400 transition-colors">
                 <input
                   type="file"
                   id="attachments"
@@ -534,12 +534,67 @@ export default function CreateReportPage() {
                   className="hidden"
                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                 />
-                <label htmlFor="attachments" className="cursor-pointer block">
-                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium text-gray-700 mb-2">คลิกเพื่อเลือกไฟล์</p>
-                  <p className="text-sm text-gray-500">หรือลากไฟล์มาวางที่นี่</p>
-                  <p className="text-xs text-gray-400 mt-2">รองรับไฟล์: รูปภาพ, PDF, Word, Excel (สูงสุด 10MB, 5 ไฟล์)</p>
-                </label>
+                
+                {/* แสดงไฟล์ที่เลือกภายใน dropzone */}
+                {formData.attachments.length > 0 ? (
+                  <div className="space-y-4">
+                    {/* Grid แสดงรูปภาพ */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {Array.from(formData.attachments).map((file, index) => (
+                        <div key={index} className="relative group">
+                          {attachmentPreviews[index] ? (
+                            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                              <img 
+                                src={attachmentPreviews[index]} 
+                                alt={file.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="aspect-square rounded-lg bg-gray-100 flex flex-col items-center justify-center">
+                              <FileText className="w-8 h-8 text-gray-400 mb-1" />
+                              <span className="text-xs text-gray-500 text-center px-2 truncate w-full">{file.name.split('.').pop()?.toUpperCase()}</span>
+                            </div>
+                          )}
+                          
+                          {/* ปุ่มลบ */}
+                          <button
+                            type="button"
+                            onClick={() => removeAttachment(index)}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-md"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                          
+                          {/* ชื่อไฟล์และขนาด */}
+                          <div className="mt-1.5 text-center">
+                            <p className="text-xs font-medium text-gray-700 truncate">{file.name}</p>
+                            <p className="text-xs text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* ปุ่มเพิ่มไฟล์ (ถ้ายังไม่ถึง 5 ไฟล์) */}
+                      {formData.attachments.length < 5 && (
+                        <label htmlFor="attachments" className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                          <Upload className="w-8 h-8 text-gray-400 mb-1" />
+                          <span className="text-xs text-gray-500">เพิ่มไฟล์</span>
+                        </label>
+                      )}
+                    </div>
+                    
+                    <p className="text-xs text-gray-400 text-center">
+                      อัปโหลดแล้ว {formData.attachments.length}/5 ไฟล์
+                    </p>
+                  </div>
+                ) : (
+                  <label htmlFor="attachments" className="cursor-pointer block text-center">
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-lg font-medium text-gray-700 mb-2">คลิกเพื่อเลือกไฟล์</p>
+                    <p className="text-sm text-gray-500">หรือลากไฟล์มาวางที่นี่</p>
+                    <p className="text-xs text-gray-400 mt-2">รองรับไฟล์: รูปภาพ, PDF, Word, Excel (สูงสุด 10MB, 5 ไฟล์)</p>
+                  </label>
+                )}
               </div>
               
               {errors.attachments && (
@@ -548,48 +603,16 @@ export default function CreateReportPage() {
                   {errors.attachments}
                 </p>
               )}
-              
-              {/* แสดงไฟล์ที่เลือก */}
-              {formData.attachments.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Array.from(formData.attachments).map((file, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      {attachmentPreviews[index] ? (
-                        <img 
-                          src={attachmentPreviews[index]} 
-                          alt="Preview" 
-                          className="w-12 h-12 object-cover rounded-lg"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-gray-500" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                        <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeAttachment(index)}
-                        className="text-red-500 hover:text-red-700 transition-colors"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center pt-4 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end sm:items-center pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={() => router.back()}
               disabled={isSubmitting || isSuccess}
-              className="btn-secondary order-2 sm:order-1 w-full sm:w-auto"
+              className="btn-secondary w-full sm:w-auto"
             >
               ยกเลิก
             </button>
@@ -597,7 +620,7 @@ export default function CreateReportPage() {
             <button
               type="submit"
               disabled={isSubmitting || isSuccess}
-              className="btn-primary order-1 sm:order-2 w-full sm:w-auto"
+              className="btn-primary w-full sm:w-auto"
             >
               {isSubmitting ? (
                 <>

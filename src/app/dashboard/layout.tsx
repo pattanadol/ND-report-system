@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
                 <div>
                   <span className="text-lg sm:text-xl font-bold text-gray-800">ND Report</span>
-                  <div className="text-xs text-indigo-600 font-medium hidden sm:block">ระบบแจ้งเรื่อง</div>
+                  <div className="text-xs text-indigo-600 font-medium hidden sm:block">ระบบแจ้งปัญหาภายในชุมชน</div>
                 </div>
               </div>
             </div>

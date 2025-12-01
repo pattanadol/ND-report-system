@@ -330,11 +330,7 @@ export default function UserDashboardPage() {
             <div className="p-8 sm:p-12 text-center">
               <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-medium text-gray-600 mb-2">ยังไม่มีเรื่องแจ้ง</h3>
-              <p className="text-gray-500 mb-6 text-sm sm:text-base">เริ่มต้นแจ้งปัญหาหรือข้อร้องเรียนของคุณ</p>
-              <Link href="/dashboard/create" className="btn-primary">
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                <span>แจ้งปัญหาใหม่</span>
-              </Link>
+              <p className="text-gray-500 text-sm sm:text-base">เริ่มต้นแจ้งปัญหาหรือข้อร้องเรียนของคุณ</p>
             </div>
           )}
         </div>

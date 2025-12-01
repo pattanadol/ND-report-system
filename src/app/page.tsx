@@ -1,8 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { FileText, Clock, Shield, Zap, Upload, BarChart } from 'lucide-react'
 
-// Note: Setup is hidden from UI for security
-// Admin setup access: /setup (direct URL only)
 
 export default function HomePage() {
   return (
@@ -17,7 +17,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-800">ND Report</h1>
-                <p className="text-xs text-indigo-600">ระบบแจ้งเรื่อง</p>
+                <p className="text-xs text-indigo-600">ระบบแจ้งปัญหาภายในชุมชน</p>
               </div>
             </div>
             
@@ -80,30 +80,87 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-lg text-center hover:shadow-xl transition-all duration-300">
-              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-2xl font-bold">
-                ซินเทียร์
+              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-xl font-bold overflow-hidden shadow-lg">
+                <img 
+                  src="/images/team/member1.jpg" 
+                  alt="ภูมิภูมินทร์ ธนภคินธยาน์"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.parentElement?.querySelector('.fallback-text')?.classList.remove('hidden')
+                  }}
+                />
+                <span className="fallback-text hidden">ซิล</span>
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">ภูมิภูมินทร์ ธนภคินธยาน์</h3>
-              <p className="text-indigo-600 font-semibold mb-3">ผู้จัดการโครงการ</p>
-              <p className="text-gray-600 leading-relaxed">ดูแลการประสานงานทั้งระบบ ควบคุมคุณภาพการทำงาน และติดตามความคืบหน้าของโครงการ มีประสบการณ์ด้านการจัดการโครงการมากว่า 5 ปี</p>
+              <p className="text-indigo-600 font-semibold mb-1">หัวหน้าโปรเจค</p>
+              <p className="text-gray-400 text-sm mb-4">รหัสนักศึกษา: 1650706672</p>
+              <p className="text-gray-600 leading-relaxed text-sm mb-4">รับผิดชอบวางแผนโครงการ จัดสรรงาน ประสานงานในทีม และดูแลภาพรวมการพัฒนาทั้งหมด</p>
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">Project Planning</span>
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">Documentation</span>
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">Team Coordination</span>
+              </div>
+              <div className="text-sm text-gray-500 border-t pt-4 flex items-center justify-center">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <span>bhumbhumin.than@bumail.net</span>
+              </div>
             </div>
             
             <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-lg text-center hover:shadow-xl transition-all duration-300">
-              <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-2xl font-bold">
-                อ้ายโด่ง
+              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-xl font-bold overflow-hidden shadow-lg">
+                <img 
+                  src="/images/team/member2.jpg" 
+                  alt="พัฒนดล นิโครธานนท์"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.parentElement?.querySelector('.fallback-text')?.classList.remove('hidden')
+                  }}
+                />
+                <span className="fallback-text hidden">โด่ง</span>
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">พัฒนดล นิโครธานนท์</h3>
-              <p className="text-emerald-600 font-semibold mb-3">นักพัฒนาระบบ</p>
-              <p className="text-gray-600 leading-relaxed">พัฒนาและดูแลระบบ รับผิดชอบด้านเทคนิค และแก้ไขปัญหาการใช้งาน เชี่ยวชาญด้าน Full-Stack Development</p>
+              <p className="text-indigo-600 font-semibold mb-1">พัฒนาระบบ</p>
+              <p className="text-gray-400 text-sm mb-4">รหัสนักศึกษา: 1650708074</p>
+              <p className="text-gray-600 leading-relaxed text-sm mb-4">รับผิดชอบพัฒนาเว็บแอปพลิเคชัน ออกแบบฐานข้อมูล และเชื่อมต่อระบบต่างๆ เข้าด้วยกัน</p>
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">Next.js</span>
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">TypeScript</span>
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">Firebase</span>
+              </div>
+              <div className="text-sm text-gray-500 border-t pt-4 flex items-center justify-center">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <span>pattanadol.niko@bumail.net</span>
+              </div>
             </div>
             
             <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-lg text-center hover:shadow-xl transition-all duration-300">
-              <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-2xl font-bold">
-                มดแดง
+              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-xl font-bold overflow-hidden shadow-lg">
+                <img 
+                  src="/images/team/member3.jpg" 
+                  alt="ภัทรวดี นวลตา"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.parentElement?.querySelector('.fallback-text')?.classList.remove('hidden')
+                  }}
+                />
+                <span className="fallback-text hidden">มด</span>
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">ภัทรวดี นวลตา</h3>
-              <p className="text-amber-600 font-semibold mb-3">นักออกแบบ UI/UX</p>
-              <p className="text-gray-600 leading-relaxed">ออกแบบส่วนติดต่อผู้ใช้ให้ใช้งานง่าย สวยงาม และตอบสนองความต้องการผู้ใช้ เชี่ยวชาญด้าน User Experience Design</p>
+              <p className="text-indigo-600 font-semibold mb-1">ออกแบบ UI/UX</p>
+              <p className="text-gray-400 text-sm mb-4">รหัสนักศึกษา: 1650707803</p>
+              <p className="text-gray-600 leading-relaxed text-sm mb-4">รับผิดชอบออกแบบหน้าตาเว็บไซต์ ทำ Wireframe และดูแลให้ระบบใช้งานง่าย</p>
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">UI Design</span>
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">Figma</span>
+                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-medium">Wireframing</span>
+              </div>
+              <div className="text-sm text-gray-500 border-t pt-4 flex items-center justify-center">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <span>pattarawadee.nuan@bumail.net</span>
+              </div>
             </div>
           </div>
         </div>
@@ -137,7 +194,7 @@ export default function HomePage() {
             </div>
             <span className="text-xl font-bold text-white">ND Report</span>
           </div>
-          <p className="text-gray-300 font-medium">&copy; 2024 ระบบแจ้งเรื่องออนไลน์ สงวนลิขสิทธิ์</p>
+          <p className="text-gray-300 font-medium">&copy; 2024 ระบบแจ้งปัญหาภายในชุมชนออนไลน์ สงวนลิขสิทธิ์</p>
         </div>
       </footer>
     </div>
