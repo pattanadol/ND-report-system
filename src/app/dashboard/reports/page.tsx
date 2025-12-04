@@ -157,31 +157,36 @@ export default function ReportsPage() {
 
   // Handle evidence file selection
   const handleEvidenceFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
+    const newFiles = Array.from(e.target.files || [])
     const maxFiles = 5
     const maxSize = 10 * 1024 * 1024 // 10MB
+    const totalFiles = evidenceFiles.length + newFiles.length
     
-    if (files.length > maxFiles) {
+    if (totalFiles > maxFiles) {
       alert(`สามารถอัปโหลดได้สูงสุด ${maxFiles} ไฟล์`)
       return
     }
     
-    const oversizedFiles = files.filter(file => file.size > maxSize)
+    const oversizedFiles = newFiles.filter(file => file.size > maxSize)
     if (oversizedFiles.length > 0) {
       alert('ไฟล์มีขนาดใหญ่เกิน 10MB')
       return
     }
     
-    setEvidenceFiles(files)
+    // Add new files to existing files
+    setEvidenceFiles(prev => [...prev, ...newFiles])
     
-    // สร้าง preview
-    const previews = files.map(file => {
+    // สร้าง preview และเพิ่มเข้าไป
+    const newPreviews = newFiles.map(file => {
       if (file.type.startsWith('image/')) {
         return URL.createObjectURL(file)
       }
       return null
     }).filter(Boolean) as string[]
-    setEvidencePreviews(previews)
+    setEvidencePreviews(prev => [...prev, ...newPreviews])
+    
+    // Reset input value to allow selecting same file again
+    e.target.value = ''
   }
 
   // Remove evidence file
@@ -570,43 +575,72 @@ export default function ReportsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     รูปภาพหลักฐาน (ถ้ามี)
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-green-400 transition-colors">
-                    <input
-                      type="file"
-                      id="evidenceImagesModal"
-                      multiple
-                      onChange={handleEvidenceFileChange}
-                      className="hidden"
-                      accept="image/*"
-                    />
-                    <label htmlFor="evidenceImagesModal" className="cursor-pointer block">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-gray-700">คลิกเพื่อเลือกรูปภาพ</p>
-                      <p className="text-xs text-gray-400 mt-1">สูงสุด 5 รูป, ไม่เกิน 10MB ต่อรูป</p>
-                    </label>
-                  </div>
-                  
-                  {/* Preview evidence files */}
-                  {evidencePreviews.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2 mt-3">
-                      {evidencePreviews.map((preview, index) => (
-                        <div key={index} className="relative">
-                          <img 
-                            src={preview} 
-                            alt={`Evidence ${index + 1}`}
-                            className="w-full h-20 object-cover rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeEvidenceFile(index)}
-                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 hover:border-green-400 transition-colors">
+                    {evidenceFiles.length === 0 ? (
+                      /* Empty state - full area upload */
+                      <label htmlFor="evidenceImagesModal" className="cursor-pointer block text-center py-8">
+                        <input
+                          type="file"
+                          id="evidenceImagesModal"
+                          multiple
+                          onChange={handleEvidenceFileChange}
+                          className="hidden"
+                          accept="image/*"
+                        />
+                        <Upload className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-lg font-medium text-gray-600">คลิกเพื่อเลือกไฟล์</p>
+                        <p className="text-sm text-gray-400 mt-1">หรือลากไฟล์มาวางที่นี่</p>
+                        <p className="text-sm text-gray-400 mt-2">รองรับไฟล์: รูปภาพ (สูงสุด 10MB, 5 ไฟล์)</p>
+                      </label>
+                    ) : (
+                      /* Has files - show grid with add button */
+                      <>
+                        <div className="flex flex-wrap gap-3">
+                          {evidenceFiles.map((file, index) => (
+                            <div key={index} className="relative flex flex-col items-center">
+                              <div className="relative">
+                                <img 
+                                  src={evidencePreviews[index]} 
+                                  alt={`Evidence ${index + 1}`}
+                                  className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeEvidenceFile(index)}
+                                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1 max-w-[80px] truncate">{file.name}</p>
+                              <p className="text-xs text-gray-400">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                            </div>
+                          ))}
+                          
+                          {/* Add file button */}
+                          {evidenceFiles.length < 5 && (
+                            <label htmlFor="evidenceImagesModalAdd" className="cursor-pointer flex flex-col items-center justify-center w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors">
+                              <input
+                                type="file"
+                                id="evidenceImagesModalAdd"
+                                multiple
+                                onChange={handleEvidenceFileChange}
+                                className="hidden"
+                                accept="image/*"
+                              />
+                              <Upload className="w-6 h-6 text-gray-400 mb-1" />
+                              <span className="text-xs text-gray-500">เพิ่มไฟล์</span>
+                            </label>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        
+                        {/* File count */}
+                        <p className="text-xs text-gray-400 mt-3 text-center">
+                          อัปโหลดแล้ว {evidenceFiles.length}/5 ไฟล์
+                        </p>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
               
